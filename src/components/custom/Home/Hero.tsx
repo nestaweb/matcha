@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Button } from "@/ui/button";
 import { ScanFace, Fuel, MessageSquareLock, Compass, MessageCircleHeart } from "lucide-react";
-import Heart from '@/ui/Heart';
+import Heart from '@/ui/pixelart/Heart';
 
 interface HomeProps {
 	className?: string;
