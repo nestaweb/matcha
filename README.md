@@ -1,8 +1,8 @@
 # Matcha
 
 login X
-register
-forgot password
+register X
+forgot password X
 
 user profile
 - edit profile
