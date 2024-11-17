@@ -1,6 +1,6 @@
 # Matcha
 
-login
+login X
 register
 forgot password
 
@@ -16,5 +16,5 @@ matching page
 chat
 
 home
-- public
+- public X
 - browsing

@@ -1,23 +1,23 @@
 import Background from '@/ui/pixelart/background';
 import Link from "next/link"
 import { MoveLeft } from "lucide-react";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Login: React.FC = () => {
 	return (
 		<Background>
 			<div className='fixed bottom-8 left-12 cursor-pointer flex gap-2'><MoveLeft /> Back to home</div>
 			<div className='h-[100vh] flex items-center'>
-				<Card className="mx-auto max-w-sm backdrop-blur-sm bg-primary/70">
+				<Card className="mx-auto max-w-sm bg-[#f4f4f4bb] backdrop-blur-lg">
 					<CardHeader>
 						<CardTitle className="text-2xl">Login</CardTitle>
 						<CardDescription>
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
 						<Button type="submit" className="w-full">
 							Login
 						</Button>
-						<Button variant="outline" className="w-full">
+						<Button className="w-full">
 							Login with Google
 						</Button>
 						</div>

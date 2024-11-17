@@ -1,9 +1,79 @@
 interface BackgroundProps {
 	className?: string;
 	children?: React.ReactNode;
+	variant?: "login" | "register";
 }
 
-const Background: React.FC<BackgroundProps> = ({ className, children }) => {
+const Background: React.FC<BackgroundProps> = ({ className, children, variant = "login" }) => {
+	return (
+		variant === "login" ?
+			<LoginBackground className={className}>
+				{children}
+			</LoginBackground>
+			:
+		variant === "register" ?
+			<RegisterBackground className={className}>
+				{children}
+			</RegisterBackground>
+			:
+			<div className={`${className}`}>
+				{children}
+			</div>
+	)
+}
+
+const RegisterBackground: React.FC<BackgroundProps> = ({ className, children }) => {
+	return (
+		<div className={`${className}`}>
+			<div className="absolute top-0 left-0 right-0 w-[100vw] h-[100vh] grid grid-cols-48 grid-rows-32">
+				<div className="bg-foreground col-start-2"></div>
+				<div className="bg-foreground row-start-2"></div>
+				<div className="bg-foreground row-start-2"></div>
+				<div className="bg-foreground row-start-2"></div>
+				<div className="bg-foreground row-start-3"></div>
+				<div className="bg-foreground row-start-4"></div>
+				<div className="bg-foreground row-start-5"></div>
+				<div className="bg-foreground row-start-5"></div>
+				<div className="bg-foreground row-start-7"></div>
+				<div className="bg-foreground row-start-8"></div>
+				<div className="bg-foreground row-start-6 col-start-3"></div>
+				<div className="bg-foreground row-start-6 col-start-4"></div>
+				<div className="bg-foreground row-start-6 col-start-5"></div>
+				<div className="bg-foreground row-start-5 col-start-5"></div>
+				<div className="bg-foreground row-start-5 col-start-6"></div>
+				<div className="bg-foreground row-start-7 col-start-4"></div>
+				<div className="bg-foreground row-start-7 col-start-5"></div>
+				<div className="bg-foreground row-start-8 col-start-5"></div>
+				<div className="bg-foreground row-start-8 col-start-6"></div>
+				<div className="bg-foreground row-start-7 col-start-7"></div>
+
+				{/* Bottom left */}
+				<div className="bg-foreground row-start-32 col-start-48"></div>
+				<div className="bg-foreground row-start-32 col-start-46"></div>
+				<div className="bg-foreground row-start-32 col-start-44"></div>
+				<div className="bg-foreground row-start-32 col-start-42"></div>
+				<div className="bg-foreground row-start-31 col-start-43"></div>
+				<div className="bg-foreground row-start-30 col-start-44"></div>
+				<div className="bg-foreground row-start-30 col-start-43"></div>
+				<div className="bg-foreground row-start-31 col-start-42"></div>
+				<div className="bg-foreground row-start-32 col-start-41"></div>
+				<div className="bg-foreground row-start-31 col-start-40"></div>
+				<div className="bg-foreground row-start-29 col-start-46"></div>
+				<div className="bg-foreground row-start-31 col-start-47"></div>
+				<div className="bg-foreground row-start-30 col-start-46"></div>
+				<div className="bg-foreground row-start-29 col-start-45"></div>
+				<div className="bg-foreground row-start-28 col-start-44"></div>
+				<div className="bg-foreground row-start-28 col-start-44"></div>
+
+			</div>
+			<div className="z-10">
+				{children}
+			</div>
+		</div>
+	)
+}
+
+const LoginBackground: React.FC<BackgroundProps> = ({ className, children }) => {
 	return (
 		<div className={`${className}`}>
 			<div className="absolute top-0 left-0 right-0 w-[100vw] h-[100vh] grid grid-cols-48 grid-rows-32">
