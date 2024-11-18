@@ -4,9 +4,9 @@ login X
 register X
 forgot password X
 
-user profile
-- edit profile
-- view profile
+user profile X
+- edit profile X
+- view profile X
 user settings
 
 matching page
