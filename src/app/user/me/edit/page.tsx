@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X, Plus } from 'lucide-react';
 import { Input } from '@/ui/input';
 import { Textarea } from "@/ui/textarea"
+import Link from 'next/link';
 import {
 	Select,
 	SelectContent,
@@ -109,7 +110,9 @@ const EditUser: React.FC = () => {
 						<Textarea defaultValue={"Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas recusandae deleniti sint pariatur soluta cum veniam officia consectetur explicabo tenetur laborum similique nesciunt, odit labore? Beatae qui officiis temporibus omnis."} />
 					</div>
 					<div className='flex gap-2'>
-						<Button className='w-full'>Save Profile</Button>
+						<Link href="/user/me" className='w-full'>
+							<Button className='w-full'>Save Profile</Button>
+						</Link>
 					</div>
 				</div>
 				<div className='flex items-end w-4/6 h-[84vh] gap-8'>

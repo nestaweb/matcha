@@ -2,14 +2,14 @@ import NavBar from '@/custom/NavBar/NavBar';
 import Background from '@/ui/pixelart/background';
 import { Button } from '@/ui/button';
 import Image from 'next/image';
-import { X, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 const UserMe: React.FC = () => {
 	return (
 		<Background variant='userProfile'>
 			<NavBar/>
-			<div className='flex justify-between gap-16 p-4 mt-[10vh]'>
+			<div className='flex justify-between gap-16 p-4 mt-[10vh] relative'>
 				<div className='flex flex-col gap-8 bg-[#f4f4f4bb] backdrop-blur rounded-2xl w-2/6 p-6 border-2 border-foreground/5  max-h-[84vh] overflow-x-scroll'>
 					<div className='flex gap-8 items-start justify-between'>
 						<div className='flex flex-col gap-3'>
@@ -94,7 +94,6 @@ const UserMe: React.FC = () => {
 							alt='profile picture'
 							className='w-full h-full object-contain object-center z-10'
 						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
 					</div>
 					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
 						<Image
@@ -102,16 +101,8 @@ const UserMe: React.FC = () => {
 							width={450}
 							height={400}
 							alt='profile picture'
-							className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-xl'
-						/>
-						<Image
-							src='/images/pp1.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
 							className='w-full h-full object-contain object-center z-10'
 						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
 					</div>
 					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
 						<Image
@@ -119,16 +110,8 @@ const UserMe: React.FC = () => {
 							width={450}
 							height={400}
 							alt='profile picture'
-							className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-xl'
-						/>
-						<Image
-							src='/images/pp2.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
 							className='w-full h-full object-contain object-center z-10'
 						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
 					</div>
 					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
 						<Image
@@ -136,20 +119,22 @@ const UserMe: React.FC = () => {
 							width={450}
 							height={400}
 							alt='profile picture'
-							className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-xl'
-						/>
-						<Image
-							src='/images/pp3.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
 							className='w-full h-full object-contain object-center z-10'
 						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
 					</div>
 					<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
 						<Plus size={30} />
 					</div>
+				</div>
+				<div className='z-20 flex flex-col rounded-2xl mr-4 w-[63vw] p-6 border-2 border-foreground/5 h-[84vh] max-h-[84vh] gap-8 overflow-x-scroll absolute right-0 bg-[#f4f4f4bb] backdrop-blur-xl'>
+					<h1 className='text-4xl'>Settings</h1>
+					<ul>
+						<li>email</li>
+						<li>password</li>
+						<li>notification</li>
+						<li>localisation</li>
+						<li>delete account</li>
+					</ul>
 				</div>
 			</div>
 		</Background>

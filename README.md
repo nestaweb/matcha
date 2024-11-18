@@ -7,7 +7,7 @@ forgot password X
 user profile X
 - edit profile X
 - view profile X
-user settings
+user settings X
 
 matching page
 - browsing
