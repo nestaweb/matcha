@@ -6,7 +6,7 @@ interface BackgroundProps {
 
 const Background: React.FC<BackgroundProps> = ({ className, children, variant = "login" }) => {
 	return (
-		<div className={`${className}`}>
+		<div className={`${className || ""}`}>
 			<div className="relative z-10">
 				{children}
 			</div>

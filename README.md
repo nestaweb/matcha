@@ -20,6 +20,8 @@
 	- public X
 	- browsing
 
+- wait 10 seconds before showing pictures
+
 ## Step 2: Backend
 Postgres db
 Nextjs api
