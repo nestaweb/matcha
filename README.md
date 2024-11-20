@@ -1,20 +1,40 @@
 # Matcha
 
-login X
-register X
-forgot password X
+## Step 1: Frontend
+- login X
+- register X
+- forgot password X
 
-user profile X
+- user profile X
 - edit profile X
 - view profile X
-user settings X
+- user settings X
 
-matching page
-- browsing
-- advanced search
+- matching page
+	- browsing
+	- advanced search
 
-chat
+- chat X
 
-home
-- public X
-- browsing
+- home
+	- public X
+	- browsing
+
+## Step 2: Backend
+Postgres db
+Nextjs api
+
+## Step 3: Mobile
+
+Responsive
+
+## Step 4: Bonus
+- Omniauth authentication.
+- import from (snapchat, facebook, Google+, etc.).
+- map of users
+- video or audio chat
+- schedule and organize real-life dates or events
+
+## Step 5: IA ?
+vercel sdk ia
+Include IA ?
