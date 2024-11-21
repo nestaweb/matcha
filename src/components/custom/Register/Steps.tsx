@@ -83,7 +83,6 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		})
 		.then((response) => {
 			setStep(2);
-			console.log("step", step);
 		})
 		.catch((error) => {
 			console.error('Error:', error);
@@ -91,7 +90,6 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 	}
 
 	function passwordStrength(password: string) {
-		console.log("password", password);
 		let strengh = 0;
 
 		if (password === "") {
@@ -100,11 +98,9 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		if (password.length < 8) 
 			return 0;
 		if (/[!@#$%^&*]/.test(password)) {
-			console.log("password length", password.length, /\d/.test(password), /[!@#$%^&*]/.test(password));
 			strengh += 1;
 		}
 		if (/\d/.test(password)) {
-			console.log("password length", password.length, /\d/.test(password));
 			strengh += 1;
 		}
 		if (password.length >= 8) {
@@ -257,7 +253,6 @@ export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		})
 		.then((response) => {
 			setStep(3);
-			console.log("step", step);
 		})
 		.catch((error) => {
 			console.error('Error:', error);
