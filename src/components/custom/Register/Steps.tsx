@@ -42,7 +42,12 @@ const registerFormSchema = z.object({
 	}),
 })
 
-export const FirstStep: React.FC = () => {
+interface StepsProps {
+	setStep: React.Dispatch<React.SetStateAction<number>>;
+	step: number;
+}
+
+export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 	const registerForm = useForm<z.infer<typeof registerFormSchema>>({
 		resolver: zodResolver(registerFormSchema),
 		defaultValues: {
@@ -54,8 +59,6 @@ export const FirstStep: React.FC = () => {
 	});
 
 	function onSubmit(values: z.infer<typeof registerFormSchema>) {
-		// Send a post request to the nextapi route with the form data /api/users/createUser
-
 		fetch('/api/users/createUser', {
 			method: 'POST',
 			headers: {
@@ -63,14 +66,13 @@ export const FirstStep: React.FC = () => {
 			},
 			body: JSON.stringify(values),
 		})
-		.then((response) => response.json())
-		.then((data) => {
-			console.log('Success:', data);
+		.then((response) => {
+			setStep(2);
+			console.log("step", step);
 		})
 		.catch((error) => {
 			console.error('Error:', error);
 		});
-
 	}
 
 	return (
@@ -184,27 +186,72 @@ export const FirstStep: React.FC = () => {
 	)
 }
 
-export const SecondStep: React.FC = () => {
+const OtpFormSchema = z.object({
+	otp: z.string()
+		.length(6, {
+			message: "Verification code must be 6 characters.",
+		})
+})
+
+export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
+
+	const otpForm = useForm<z.infer<typeof OtpFormSchema>>({
+		resolver: zodResolver(OtpFormSchema),
+		defaultValues: {
+			otp: ""
+		},
+	});
+
+	function onSubmit(values: z.infer<typeof OtpFormSchema>) {
+		fetch('/api/otps/verifyOtp', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(values),
+		})
+		.then((response) => {
+			setStep(3);
+			console.log("step", step);
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
 	return (
 		<>
 			<h2 className='font-medium text-3xl'>Verification code</h2>
-			<div className='flex flex-col w-2/3 mt-[5vh] z-20 items-center gap-6'>
-				<InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
-					<InputOTPGroup>
-						<InputOTPSlot index={0} />
-						<InputOTPSlot index={1} />
-						<InputOTPSlot index={2} />
-					</InputOTPGroup>
-					<InputOTPSeparator />
-					<InputOTPGroup>
-						<InputOTPSlot index={3} />
-						<InputOTPSlot index={4} />
-						<InputOTPSlot index={5} />
-					</InputOTPGroup>
-				</InputOTP>
-				<Button>Verify</Button>
-				<p className='text-center'>Don&apos;t receive ? <Link href="#" className='underline'>Click to resend</Link></p>
-			</div>
+			<Form {...otpForm}>
+				<form onSubmit={otpForm.handleSubmit(onSubmit)} className="flex flex-col w-2/3 mt-[5vh] z-20 items-center gap-6">
+				<FormField
+						control={otpForm.control}
+						name="otp"
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<InputOTP {...field} maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
+										<InputOTPGroup>
+											<InputOTPSlot index={0} />
+											<InputOTPSlot index={1} />
+											<InputOTPSlot index={2} />
+										</InputOTPGroup>
+										<InputOTPSeparator />
+										<InputOTPGroup>
+											<InputOTPSlot index={3} />
+											<InputOTPSlot index={4} />
+											<InputOTPSlot index={5} />
+										</InputOTPGroup>
+									</InputOTP>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Button>Verify</Button>
+					<p className='text-center'>Don&apos;t receive ? <Link href="#" className='underline'>Click to resend</Link></p>
+				</form>
+			</Form>
 		</>
 	)
 }

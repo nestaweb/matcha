@@ -1,11 +1,19 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Background from '@/ui/pixelart/background';
 import Link from "next/link";
 import { MoveLeft, User, MailCheck, Rocket, Settings2 } from "lucide-react";
-import { FirstStep } from "@/custom/Register/Steps";
+import { FirstStep, SecondStep, ThirdStep } from "@/custom/Register/Steps";
 
 const Register: React.FC = () => {
+	const [step, setStep] = useState(1);
+
+	useEffect(() => {
+		console.log('Register page loaded');
+		console.log('Step:', step);
+	}, [step]);
+
 	return (
 		<Background variant='register'>
 			<div className='h-[100vh] flex justify-between'>
@@ -64,7 +72,14 @@ const Register: React.FC = () => {
 				<div className='w-9/12 flex justify-center'>
 					<div className='flex flex-col w-1/2 mx-auto items-center mt-[13.25vh]'>
 						<h2 className='text-lg text-foreground/30'>42Matcha</h2>
-						<FirstStep />
+						{
+							step === 1 ? <FirstStep setStep={setStep} step={step} />
+							: 
+							step === 2 ?
+							<SecondStep setStep={setStep} step={step} />
+							:
+							<ThirdStep />
+						}
 					</div>
 				</div>
 			</div>

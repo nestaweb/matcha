@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     height INT,
     tags VARCHAR(255),
     friends VARCHAR(255),
+    verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
