@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import { Label } from "@/ui/label";
@@ -7,45 +9,171 @@ import {
 	InputOTP,
 	InputOTPGroup,
 	InputOTPSeparator,
-	InputOTPSlot,
+	InputOTPSlot
 } from "@/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Slider } from "@/ui/slider";
 import { TagsInput } from "@/ui/tagsinput";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+
+const registerFormSchema = z.object({
+	firstName: z.string().min(2, {
+	  message: "First Name must be at least 2 characters.",
+	}),
+	lastName: z.string().min(2, {
+		message: "Last Name must be at least 2 characters.",
+	}),
+	email: z.string().email({
+		message: "Invalid email address.",
+	}),
+	password: z.string().min(8, {
+		message: "Password must be at least 8 characters.",
+	}),
+})
 
 export const FirstStep: React.FC = () => {
+	const registerForm = useForm<z.infer<typeof registerFormSchema>>({
+		resolver: zodResolver(registerFormSchema),
+		defaultValues: {
+			firstName: "",
+			lastName: "",
+			email: "",
+			password: "",
+		},
+	});
+
+	function onSubmit(values: z.infer<typeof registerFormSchema>) {
+		// Send a post request to the nextapi route with the form data /api/users/createUser
+
+		fetch('/api/users/createUser', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(values),
+		})
+		.then((response) => response.json())
+		.then((data) => {
+			console.log('Success:', data);
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+	}
+
 	return (
 		<>
 			<h2 className='font-medium text-3xl'>Create free account</h2>
 			<div className='flex flex-col items-center w-2/3 mt-[5vh] z-20'>
-				<div className="flex flex-col gap-6 w-full">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="email">Email</Label>
-						<Input
-							id="email"
-							type="email"
-							placeholder="m@example.com"
-							required
+				<Form {...registerForm}>
+					<form onSubmit={registerForm.handleSubmit(onSubmit)} className="flex flex-col gap-6 w-full">
+						<FormField
+							control={registerForm.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem className="flex flex-col gap-2">
+									<FormLabel>Email</FormLabel>
+									<FormControl>
+										<Input
+											id="email"
+											type="email"
+											placeholder="m@example.com"
+											required
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="password">Password</Label>
-						<Input id="password" type="password" required />
-						<div className="flex gap-2">
-							<div className='w-1/4 h-[1.5vh] rounded-xl bg-emerald-500 border border-secondary/20'></div>
-							<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
-							<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
-							<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
-						</div>
-					</div>
-					<Button type="submit" className="w-full">
-						Continue
-					</Button>
-					<Button className="w-full">
-						Continue with Google
-					</Button>
-					</div>
-					<div className="mt-4 text-center text-sm">
+						<FormField
+							control={registerForm.control}
+							name="firstName"
+							render={({ field }) => (
+								<FormItem className="flex flex-col gap-2">
+									<FormLabel>First Name</FormLabel>
+									<FormControl>
+										<Input
+											id="firstName"
+											type="text"
+											placeholder="John"
+											required
+											{...field}
+										/>
+									</FormControl>
+									<FormDescription>
+										This is your public display name.
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={registerForm.control}
+							name="lastName"
+							render={({ field }) => (
+								<FormItem className="flex flex-col gap-2">
+									<FormLabel>Last Name</FormLabel>
+									<FormControl>
+										<Input
+											id="lastName"
+											type="text"
+											placeholder="Doe"
+											required
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={registerForm.control}
+							name="password"
+							render={({ field }) => (
+								<FormItem className="flex flex-col gap-2">
+									<FormLabel>Password</FormLabel>
+									<FormControl>
+										<>
+											<Input
+												id="password"
+												type="password"
+												required
+												{...field}
+											/>
+											<div className="flex gap-2">
+												<div className='w-1/4 h-[1.5vh] rounded-xl bg-emerald-500 border border-secondary/20'></div>
+												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
+												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
+												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
+											</div>
+										</>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit" className="w-full">
+							Continue
+						</Button>
+						<Button className="w-full">
+							Continue with Google
+						</Button>
+					</form>
+				</Form>
+				<div className="mt-4 text-center text-sm">
 					Already have an account?{" "}
 					<Link href="/login" className="underline">
 						Sign in

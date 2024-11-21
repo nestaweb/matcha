@@ -3,7 +3,7 @@
 import Background from '@/ui/pixelart/background';
 import Link from "next/link";
 import { MoveLeft, User, MailCheck, Rocket, Settings2 } from "lucide-react";
-import { FourthStep } from "@/custom/Register/Steps";
+import { FirstStep } from "@/custom/Register/Steps";
 
 const Register: React.FC = () => {
 	return (
@@ -64,7 +64,7 @@ const Register: React.FC = () => {
 				<div className='w-9/12 flex justify-center'>
 					<div className='flex flex-col w-1/2 mx-auto items-center mt-[13.25vh]'>
 						<h2 className='text-lg text-foreground/30'>42Matcha</h2>
-						<FourthStep />
+						<FirstStep />
 					</div>
 				</div>
 			</div>
