@@ -8,16 +8,24 @@ export async function POST(req: NextRequest) {
 	try {
 		const { userId } = await req.json();
 
-		// Check if user exists
+		const user = await pool.query(
+			'SELECT * FROM users WHERE id = $1',
+			[userId]
+		);
+
+		if (user.rows.length === 0) {
+			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+		}
 
 		const otp = Math.floor(100000 + Math.random() * 900000);
+		
 		console.log('Attempting to connect to database...');
 		const result = await pool.query(
 			'INSERT INTO otps (user_id, otp) VALUES ($1, $2) RETURNING *',
 			[userId, otp]
 		);
+
 		console.log('Query successful:', result.rows);
-		// return the otp
 		return NextResponse.json(result.rows[0]);
   	}
 	catch (error: any) {
