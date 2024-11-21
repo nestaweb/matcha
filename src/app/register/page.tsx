@@ -27,17 +27,17 @@ const Register: React.FC = () => {
 					<div className='flex flex-col gap-12  px-8 pt-6'>
 						<h1 className='text-xl'>42Matcha</h1>
 						<div className='flex flex-col'>
-							<div className='flex gap-4 items-center'>
+							<div className={`flex gap-4 items-center ${step === 1 ? '' : 'opacity-40'}`}>
 								<div className='p-2 bg-primary/80 rounded-lg border-2 border-foreground/15'>
 									<User size={20}/>
 								</div>
 								<div className='flex flex-col'>
-									<h2 className='font-semibold'>Your details</h2>
+									<h2 className={`font-semibold`}>Your details</h2>
 									<p className='text-sm text-foreground/60'>Provide an email and password</p>
 								</div>
 							</div>
 							<div className='bg-foreground/20 w-[1.75px] rounded-3xl h-[4vh] ml-[19px]'></div>
-							<div className='flex gap-4 items-center opacity-40'>
+							<div className={`flex gap-4 items-center ${step === 2 ? '' : 'opacity-40'}`}>
 								<div className='p-2 bg-primary/80 rounded-lg border-2 border-foreground/15'>
 									<MailCheck size={20}/>
 								</div>
@@ -47,7 +47,7 @@ const Register: React.FC = () => {
 								</div>
 							</div>
 							<div className='bg-foreground/20 w-[1.75px] rounded-3xl h-[4vh] ml-[19px]'></div>
-							<div className='flex gap-4 items-center opacity-40'>
+							<div className={`flex gap-4 items-center ${step === 3 ? '' : 'opacity-40'}`}>
 								<div className='p-2 bg-primary/80 rounded-lg border-2 border-foreground/15'>
 									<Settings2 size={20}/>
 								</div>
@@ -57,7 +57,7 @@ const Register: React.FC = () => {
 								</div>
 							</div>
 							<div className='bg-foreground/20 w-[1.75px] rounded-3xl h-[4vh] ml-[19px]'></div>
-							<div className='flex gap-4 items-center opacity-40'>
+							<div className={`flex gap-4 items-center ${step === 4 ? '' : 'opacity-40'}`}>
 								<div className='p-2 bg-primary/80 rounded-lg border-2 border-foreground/15'>
 									<Rocket size={20}/>
 								</div>

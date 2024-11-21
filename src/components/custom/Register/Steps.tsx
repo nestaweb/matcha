@@ -48,6 +48,8 @@ interface StepsProps {
 }
 
 export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
+	const [password, setPassword] = useState("");
+
 	const registerForm = useForm<z.infer<typeof registerFormSchema>>({
 		resolver: zodResolver(registerFormSchema),
 		defaultValues: {
@@ -73,6 +75,32 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		.catch((error) => {
 			console.error('Error:', error);
 		});
+	}
+
+	function passwordStrength(password: string) {
+		console.log("password", password);
+		let strengh = 0;
+
+		if (password === "") {
+			return 0;
+		}
+		if (password.length < 8) 
+			return 0;
+		if (/[!@#$%^&*]/.test(password)) {
+			console.log("password length", password.length, /\d/.test(password), /[!@#$%^&*]/.test(password));
+			strengh += 1;
+		}
+		if (/\d/.test(password)) {
+			console.log("password length", password.length, /\d/.test(password));
+			strengh += 1;
+		}
+		if (password.length >= 8) {
+			strengh += 1;
+		}
+		if (/[A-Z]/.test(password) && /[a-z]/.test(password)) {
+			strengh += 1;
+		}
+		return strengh;
 	}
 
 	return (
@@ -154,12 +182,16 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 												type="password"
 												required
 												{...field}
+												onChange={(e) => {
+													field.onChange(e);
+													setPassword(e.target.value);
+												}}
 											/>
 											<div className="flex gap-2">
-												<div className='w-1/4 h-[1.5vh] rounded-xl bg-emerald-500 border border-secondary/20'></div>
-												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
-												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
-												<div className='w-1/4 h-[1.5vh] rounded-xl bg-foreground/5 border border-secondary/20'></div>
+												<div className={`w-1/4 h-[1.5vh] rounded-xl ${passwordStrength(password) >= 1 ? "bg-emerald-500" : "bg-foreground/5"} border border-secondary/20`}></div>
+												<div className={`w-1/4 h-[1.5vh] rounded-xl ${passwordStrength(password) >= 2 ? "bg-emerald-500" : "bg-foreground/5"} border border-secondary/20`}></div>
+												<div className={`w-1/4 h-[1.5vh] rounded-xl ${passwordStrength(password) >= 3 ? "bg-emerald-500" : "bg-foreground/5"} border border-secondary/20`}></div>
+												<div className={`w-1/4 h-[1.5vh] rounded-xl ${passwordStrength(password) >= 4 ? "bg-emerald-500" : "bg-foreground/5"} border border-secondary/20`}></div>
 											</div>
 										</>
 									</FormControl>
@@ -256,14 +288,21 @@ export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
 	)
 }
 
-export const ThirdStep: React.FC = () => {
+export const ThirdStep: React.FC<StepsProps> = ({ setStep, step }) => {
+	const [question, setQuestion] = useState(1);
+
 	return (
 		<>
 			<h2 className='font-medium text-3xl'>Preferences</h2>
-			<p className='opacity-60'>Question 2 of 5</p>
+			<p className='opacity-60'>Question {question} of 5</p>
 			<div className='flex flex-col w-full mt-[5vh] z-20 items-center gap-8'>
-				<QuestionFive />
-				<Button>Continue</Button>
+				{
+					question === 1 ? <QuestionOne /> :
+					question === 2 ? <QuestionTwo /> :
+					question === 3 ? <QuestionThree /> :
+					question === 4 ? <QuestionFour /> :
+					question === 5 ? <QuestionFive /> : null
+				}
 			</div>
 		</>
 	)
@@ -305,6 +344,7 @@ export const QuestionOne: React.FC = () => {
 					<p className='text-foreground/60 text-center'>Don&apos;t want to say</p>
 				</div>
 			</div>
+			<Button>Continue</Button>
 		</>
 	)
 }
@@ -345,6 +385,7 @@ export const QuestionTwo: React.FC = () => {
 					<p className='text-foreground/60 text-center'>Don&apos;t want to say</p>
 				</div>
 			</div>
+			<Button>Continue</Button>
 		</>
 	)
 }
@@ -363,6 +404,7 @@ export const QuestionThree: React.FC = () => {
 				onValueChange={handleChange}
 			/>
 			<p>selected age : {value}</p>
+			<Button>Continue</Button>
 		</>
 	)
 }
@@ -397,6 +439,7 @@ export const QuestionFour: React.FC = () => {
 					<p className='text-foreground/60 text-center'>Serious</p>
 				</div>
 			</div>
+			<Button>Continue</Button>
 		</>
 	)
 }
@@ -413,6 +456,7 @@ export const QuestionFive: React.FC = () => {
 				placeholder="enter your points of interests"
 				className="w-2/3"
 			/>
+			<Button>Continue</Button>
 		</>
 	)
 }
