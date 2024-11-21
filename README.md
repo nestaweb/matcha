@@ -11,18 +11,19 @@
 - user settings X
 
 - matching page
-	- browsing
+	- browsing X
 	- advanced search
 
 - chat X
 
 - home
 	- public X
-	- browsing
+	- browsing X
 
 - wait 10 seconds before showing pictures
 
 ## Step 2: Backend
+Docker
 Postgres db
 Nextjs api
 

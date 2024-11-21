@@ -1,6 +1,6 @@
 import Background from "@/ui/pixelart/background";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Ellipsis, Eye, Ban, MessageCircleOff, Image, Phone, Video } from "lucide-react";
+import { Ellipsis, Eye, Ban, MessageCircleOff, Image as ImageIcon, Phone, Video } from "lucide-react";
 import {
 	Avatar,
 	AvatarFallback,
@@ -221,7 +221,7 @@ const ChatHome: React.FC = () => {
 					</ScrollArea>
 					<div className="flex p-8 py-5 gap-4">
 						<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-							<Image />
+							<ImageIcon />
 						</div>
 						<Input className="transition duration-300 ease-in-out py-5 px-4 rounded-2xl border-foreground/10 border-2 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-foreground/70" placeholder="Type a message ..." />
 					</div>

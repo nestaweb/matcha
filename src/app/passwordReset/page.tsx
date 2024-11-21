@@ -1,6 +1,6 @@
 import Background from '@/ui/pixelart/background';
-import Link from "next/link"
 import { MoveLeft } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,

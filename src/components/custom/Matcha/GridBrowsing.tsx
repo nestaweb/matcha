@@ -107,7 +107,7 @@ const GridBrowsing: React.FC = () => {
 					</div>
 				</Link>
 				<div className="bg-foreground/90 rounded-3xl px-6 py-2 text-primary">
-					<p className="">{completedPairs.size/2} <span className="text-primary/80">/ 10 discovered</span></p>
+					<p className="">{completedPairs.size} <span className="text-primary/80">/ 10 discovered</span></p>
 				</div>
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
 					<Settings2 />

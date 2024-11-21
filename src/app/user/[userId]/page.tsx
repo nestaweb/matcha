@@ -2,7 +2,7 @@ import NavBar from '@/custom/NavBar/NavBar';
 import Background from '@/ui/pixelart/background';
 import { Button } from '@/ui/button';
 import Image from 'next/image';
-import { X, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const ViewUser: React.FC = () => {
 	return (
@@ -28,21 +28,21 @@ const ViewUser: React.FC = () => {
 					<div className='grid grid-cols-2 gap-2 gap-y-3'>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Height</p>
-							<p>//</p>
+							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
 							<p>184 <span className='text-sm text-foreground/60'>cm</span></p>
 						</div>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Sexual Orientation</p>
-							<p>//</p>
+							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
 							<p>Heterosexual</p>
 						</div>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Searching for</p>
-							<p>//</p>
+							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
 							<p>Friends</p>
@@ -51,7 +51,7 @@ const ViewUser: React.FC = () => {
 					<div className='flex flex-col gap-2 mt-12'>
 						<div className='flex items-center w-1/2 justify-between pr-1 font-medium'>
 							<p>Interests</p>
-							<p>//</p>
+							<p>\\</p>
 						</div>
 						<div className='flex flex-wrap gap-2'>
 							<div className='bg-foreground/90 backdrop-blur text-primary px-4 py-1 rounded-3xl cursor-default'>
@@ -65,7 +65,7 @@ const ViewUser: React.FC = () => {
 					<div className='flex flex-col gap-2'>
 						<div className='flex items-center w-1/2 justify-between pr-1 font-medium'>
 							<p>Bio</p>
-							<p>//</p>
+							<p>\\</p>
 						</div>
 						<p>
 							Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas recusandae deleniti sint pariatur soluta cum veniam officia consectetur explicabo tenetur laborum similique nesciunt, odit labore? Beatae qui officiis temporibus omnis.
