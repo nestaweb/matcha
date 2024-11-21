@@ -37,9 +37,22 @@ const registerFormSchema = z.object({
 	email: z.string().email({
 		message: "Invalid email address.",
 	}),
-	password: z.string().min(8, {
-		message: "Password must be at least 8 characters.",
-	}),
+	password: z.string()
+		.min(8, {
+			message: "Password must be at least 8 characters.",
+		})
+		.max(50, {
+			message: "Password must be at most 50 characters.",
+		})
+		.regex(/[!@#$%^&*]/, {
+			message: "Password must contain at least one special character.",
+		})
+		.regex(/\d/, {
+			message: "Password must contain at least one digit.",
+		})
+		.regex(/[A-Z]/, {
+			message: "Password must contain at least one uppercase letter.",
+		})
 })
 
 interface StepsProps {
