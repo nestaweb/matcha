@@ -531,14 +531,94 @@ export const QuestionOne: React.FC = () => {
 	)
 }
 
+const soFormSchema = z.object({
+	sexualOrientation: z.string()
+})
+
 export const QuestionTwo: React.FC = () => {
+	const soForm = useForm<z.infer<typeof soFormSchema>>({
+		resolver: zodResolver(soFormSchema),
+		defaultValues: {
+			sexualOrientation: ""
+		},
+	});
+
+	const searchParams = useSearchParams();
+	const encryptedUserId = searchParams.get('userId');
+	const router = useRouter();
+
+	function onSubmit(values: z.infer<typeof soFormSchema>) {
+		fetch(`/api/users/setUserSexualOrientation`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId, ...values}),
+		})
+		.then((response) => {
+			if (response.status === 200) {
+				router.push('/register?step=3&question=3&userId=' + encryptedUserId);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What&apos;s your sexual orientation ?</h2>
-			<div className='flex gap-6'>
+			<Form {...soForm}>
+				<form onSubmit={soForm.handleSubmit(onSubmit)} className="flex flex-col items-center gap-4">
+					<FormField
+						control={soForm.control}
+						name="sexualOrientation"
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<RadioGroup.Root defaultValue="heterosexual" className='flex gap-6' onChange={(e) => field.onChange(e)} name={field.name}>
+										<div className="flex flex-col gap-2 items-center">
+											<RadioGroup.Item value="heterosexual" id="r1"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
+											</RadioGroup.Item>
+											<p className='text-foreground/60 text-center'>Heterosexual</p>
+										</div>
+										<div className="flex flex-col gap-2 items-center">
+											<RadioGroup.Item value="homosexual" id="r2"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
+											</RadioGroup.Item>
+											<p className='text-foreground/60 text-center'>Homosexual</p>
+										</div>
+										<div className="flex flex-col gap-2 items-center">
+											<RadioGroup.Item value="bisexual" id="r3"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
+											</RadioGroup.Item>
+											<p className='text-foreground/60 text-center'>Bisexual</p>
+										</div>
+										<div className="flex flex-col gap-2 items-center">
+											<RadioGroup.Item value="asexual" id="r4"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
+											</RadioGroup.Item>
+											<p className='text-foreground/60 text-center'>Asexual</p>
+										</div>
+										<div className="flex flex-col gap-2 items-center">
+											<RadioGroup.Item value="dontwanttosay" id="r5"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
+											</RadioGroup.Item>
+											<p className='text-foreground/60 text-center'>Don&apos;t want to say</p>
+										</div>
+									</RadioGroup.Root>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Button>Continue</Button>
+				</form>
+			</Form>
+			{/* <div className='flex gap-6'>
 				<div className='flex flex-col gap-2 items-center'>
 					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						{/* <div className='w-11 h-11 bg-foreground/80 rounded-full'></div> */}
+						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
 					</div>
 					<p className='text-foreground/60 text-center'>Heterosexual</p>
 				</div>
@@ -550,24 +630,24 @@ export const QuestionTwo: React.FC = () => {
 				</div>
 				<div className='flex flex-col gap-2 items-center'>
 					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						{/* <div className='w-11 h-11 bg-foreground/80 rounded-full'></div> */}
+						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
 					</div>
 					<p className='text-foreground/60 text-center'>Bisexual</p>
 				</div>
 				<div className='flex flex-col gap-2 items-center'>
 					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						{/* <div className='w-11 h-11 bg-foreground/80 rounded-full'></div> */}
+						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
 					</div>
 					<p className='text-foreground/60 text-center'>Asexual</p>
 				</div>
 				<div className='flex flex-col gap-2 items-center'>
 					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						{/* <div className='w-11 h-11 bg-foreground/80 rounded-full'></div> */}
+						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
 					</div>
 					<p className='text-foreground/60 text-center'>Don&apos;t want to say</p>
 				</div>
 			</div>
-			<Button>Continue</Button>
+			<Button>Continue</Button> */}
 		</>
 	)
 }
