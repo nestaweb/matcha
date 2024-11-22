@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Label } from "@/ui/label";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import {
@@ -56,12 +56,12 @@ const registerFormSchema = z.object({
 })
 
 interface StepsProps {
-	setStep: React.Dispatch<React.SetStateAction<number>>;
-	step: number;
+
 }
 
-export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
+export const FirstStep: React.FC<StepsProps> = ({  }) => {
 	const [password, setPassword] = useState("");
+	const router = useRouter();
 
 	const registerForm = useForm<z.infer<typeof registerFormSchema>>({
 		resolver: zodResolver(registerFormSchema),
@@ -73,7 +73,7 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof registerFormSchema>) {
+	async function onSubmit(values: z.infer<typeof registerFormSchema>) {
 		fetch('/api/users/createUser', {
 			method: 'POST',
 			headers: {
@@ -81,8 +81,11 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 			},
 			body: JSON.stringify(values),
 		})
-		.then((response) => {
-			setStep(2);
+		.then(async (response) => {
+			if (response.status === 200) {
+				const encryptedUserId = await response.json()
+				router.push('/register?step=2&userId=' + encryptedUserId);
+			}
 		})
 		.catch((error) => {
 			console.error('Error:', error);
@@ -95,8 +98,6 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 		if (password === "") {
 			return 0;
 		}
-		if (password.length < 8) 
-			return 0;
 		if (/[!@#$%^&*]/.test(password)) {
 			strengh += 1;
 		}
@@ -152,9 +153,6 @@ export const FirstStep: React.FC<StepsProps> = ({ setStep, step }) => {
 											{...field}
 										/>
 									</FormControl>
-									<FormDescription>
-										This is your public display name.
-									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -234,7 +232,33 @@ const OtpFormSchema = z.object({
 		})
 })
 
-export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
+export const SecondStep: React.FC<StepsProps> = ({  }) => {
+	const searchParams = useSearchParams();
+	const encryptedOtp = searchParams.get('otp');
+	const encryptedUserId = searchParams.get('userId');
+	const cryptedKey = encryptedOtp?.split('.');
+	const userId = encryptedUserId?.split('.');
+	const router = useRouter();
+
+	if (encryptedOtp !== null && encryptedOtp !== "." && encryptedUserId !== null && encryptedUserId !== ".") {
+		console.log('encryptedOtp:', encryptedOtp);
+		console.log('encryptedUserId:', encryptedUserId);
+		fetch(`/api/otps/verifyOtpLink`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedOtp: encryptedOtp, encryptedUserId: encryptedUserId}),
+		})
+		.then((response) => {
+			if (response.status === 200) {
+				router.push('/register?step=3&userId=' + encryptedUserId);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
 
 	const otpForm = useForm<z.infer<typeof OtpFormSchema>>({
 		resolver: zodResolver(OtpFormSchema),
@@ -244,15 +268,20 @@ export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
 	});
 
 	function onSubmit(values: z.infer<typeof OtpFormSchema>) {
+		if (userId === null || userId === undefined) {
+			return;
+		}
 		fetch('/api/otps/verifyOtp', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(values),
+			body: JSON.stringify({...values, userId: userId[0], iv: userId[1]}),
 		})
 		.then((response) => {
-			setStep(3);
+			if (response.status === 200) {
+				router.push('/register?step=3&userId=' + encryptedUserId);
+			}
 		})
 		.catch((error) => {
 			console.error('Error:', error);
@@ -296,7 +325,7 @@ export const SecondStep: React.FC<StepsProps> = ({ setStep, step }) => {
 	)
 }
 
-export const ThirdStep: React.FC<StepsProps> = ({ setStep, step }) => {
+export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 	const [question, setQuestion] = useState(1);
 
 	return (

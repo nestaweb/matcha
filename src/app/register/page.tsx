@@ -1,18 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from "react";
 import Background from '@/ui/pixelart/background';
 import Link from "next/link";
 import { MoveLeft, User, MailCheck, Rocket, Settings2 } from "lucide-react";
 import { FirstStep, SecondStep, ThirdStep } from "@/custom/Register/Steps";
 
 const Register: React.FC = () => {
-	const [step, setStep] = useState(1);
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<RegisterContent />
+		</Suspense>
+	)
+}
 
-	useEffect(() => {
-		console.log('Register page loaded');
-		console.log('Step:', step);
-	}, [step]);
+const RegisterContent: React.FC = () => {
+	const search = useSearchParams();
+	const step = parseInt(search.get('step') || '1');
 
 	return (
 		<Background variant='register'>
@@ -73,10 +79,10 @@ const Register: React.FC = () => {
 					<div className='flex flex-col w-1/2 mx-auto items-center mt-[13.25vh]'>
 						<h2 className='text-lg text-foreground/30'>42Matcha</h2>
 						{
-							step === 1 ? <FirstStep setStep={setStep} step={step} />
+							step === 1 ? <FirstStep />
 							: 
 							step === 2 ?
-							<SecondStep setStep={setStep} step={step} />
+							<SecondStep />
 							:
 							<ThirdStep />
 						}
