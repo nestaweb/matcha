@@ -11,6 +11,33 @@ export async function POST(req: NextRequest) {
 	try {
 		const { firstName, lastName, email, password } = await req.json();
 
+		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+
+		const user = await pool.query(
+			'SELECT * FROM users WHERE email = $1',
+			[email]
+		);
+
+		console.log('User already exists:', user.rows);
+		if (user.rows.length > 0) {
+			console.log('User already exists:', user.rows);
+			const userExists = user.rows[0];
+			const passwordMatch = await bcrypt.compare(password, userExists.password);
+			if (passwordMatch) {
+				const encryptedUserId = cryptoService.encrypt(userExists.id.toString());
+
+				const requestOtp = await fetch(`${process.env.BASE_URL}/api/otps/resendOtp`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({encryptedUserId: encryptedUserId.encryptedText, iv: encryptedUserId.iv})
+				});
+				const encryptedParamUserId = encryptedUserId.encryptedText + '.' + encryptedUserId.iv;
+				return NextResponse.json(encryptedParamUserId, { status: 200 });
+			}	
+		}
+
 		const encryptedPassword = await bcrypt.hash(password, 10);
 		console.log('Attempting to connect to database...');
 		const result = await pool.query(
@@ -43,7 +70,6 @@ export async function POST(req: NextRequest) {
 		const Month = new Date().toLocaleString('default', { month: 'short' });
 		const Year = new Date().getFullYear();
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
 
 		const otpNumber = otp.otp;
 
