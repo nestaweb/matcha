@@ -350,6 +350,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 	const encryptedUserId = searchParams.get('userId');
 	const router = useRouter();
 
+	console.log(encryptedUserId);
 	useEffect(() => {
 		fetch(`/api/users/getUserStatus`, {
 			method: 'POST',
@@ -361,7 +362,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				const data = await response.json();
-				if (data === true) {
+				if (data === false) {
 					router.push('/register?step=2&userId=' + encryptedUserId);
 				}
 			}
