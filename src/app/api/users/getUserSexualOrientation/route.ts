@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		console.log('Query successful:', user.rows);
-		return NextResponse.json(user.rows[0].sexualOrientation, { status: 200 });
+		return NextResponse.json(user.rows[0].sexualorientation, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

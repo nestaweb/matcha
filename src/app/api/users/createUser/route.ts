@@ -24,6 +24,16 @@ export async function POST(req: NextRequest) {
 			const userExists = user.rows[0];
 			const passwordMatch = await bcrypt.compare(password, userExists.password);
 			if (passwordMatch) {
+				const isUserVerified = await pool.query(
+					'SELECT * FROM users WHERE user_id = $1 AND verified = $2',
+					[userExists.id, true]
+				);
+				if (isUserVerified.rows.length > 0) {
+					const encryptedUserId = cryptoService.encrypt(userExists.id.toString());
+					const encryptedParamUserId = encryptedUserId.encryptedText + '.' + encryptedUserId.iv;
+					return NextResponse.json(encryptedParamUserId, { status: 200 });
+				}
+				
 				const encryptedUserId = cryptoService.encrypt(userExists.id.toString());
 
 				const requestOtp = await fetch(`${process.env.BASE_URL}/api/otps/resendOtp`, {
