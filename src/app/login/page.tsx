@@ -46,6 +46,18 @@ const Login: React.FC = () => {
 		},
 	});
 
+	fetch('/api/users/isLoggedIn', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+	})
+	.then((response) => {
+		if (response.status === 200) {
+			router.push('/user/me');
+		}
+	})
+
 	function onSubmit(values: z.infer<typeof loginFormSchema>) {
 		fetch('/api/users/login', {
 			method: 'POST',

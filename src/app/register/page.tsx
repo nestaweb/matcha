@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from 'next/navigation';
+import React from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from "react";
 import Background from '@/ui/pixelart/background';
 import Link from "next/link";
@@ -19,6 +19,19 @@ const Register: React.FC = () => {
 const RegisterContent: React.FC = () => {
 	const search = useSearchParams();
 	const step = parseInt(search.get('step') || '1');
+	const router = useRouter();
+
+	fetch('/api/users/isLoggedIn', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+	})
+	.then((response) => {
+		if (response.status === 200) {
+			router.push('/user/me');
+		}
+	})
 
 	return (
 		<Background variant='register'>
