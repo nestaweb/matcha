@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
-		const { encryptedUserId, sexualOrientation } = await req.json();
+		const { encryptedUserId, age } = await req.json();
 
 		const cryptedUserId = encryptedUserId.split('.');
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
 		}
 
 		const modifiedUser = await pool.query(
-			'UPDATE users SET sexualorientation = $1 WHERE id = $2 RETURNING *',
-			[sexualOrientation, userId]
+			'UPDATE users SET age = $1 WHERE id = $2 RETURNING *',
+			[age, userId]
 		);
 
 		if (modifiedUser.rows.length === 0) {
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		console.log('Query successful:', user.rows);
-		return NextResponse.json(modifiedUser.rows[0].sexualorientation, { status: 200 });
+		return NextResponse.json(modifiedUser.rows[0].age, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

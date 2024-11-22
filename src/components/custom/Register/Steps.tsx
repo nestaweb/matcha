@@ -615,58 +615,79 @@ export const QuestionTwo: React.FC = () => {
 					<Button>Continue</Button>
 				</form>
 			</Form>
-			{/* <div className='flex gap-6'>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Heterosexual</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Homosexual</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Bisexual</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Asexual</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Don&apos;t want to say</p>
-				</div>
-			</div>
-			<Button>Continue</Button> */}
 		</>
 	)
 }
 
+const ageFormSchema = z.object({
+	age: z.string()
+})
+
 export const QuestionThree: React.FC = () => {
+
+	const ageForm = useForm<z.infer<typeof ageFormSchema>>({
+		resolver: zodResolver(ageFormSchema),
+		defaultValues: {
+			age: ""
+		},
+	});
+
+	const searchParams = useSearchParams();
+	const encryptedUserId = searchParams.get('userId');
+	const router = useRouter();
+
+	function onSubmit(values: z.infer<typeof ageFormSchema>) {
+		fetch(`/api/users/setUserAge`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId, ...values}),
+		})
+		.then((response) => {
+			if (response.status === 200) {
+				router.push('/register?step=3&question=4&userId=' + encryptedUserId);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
 	const [value, setValue] = useState(18);
 	const handleChange = (val: number[]) => {
 		setValue(val[0]);
-	  };
+	};
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What&apos;s your age ?</h2>
-			<Slider 
-				min={18}
-				max={90}
-				onValueChange={handleChange}
-			/>
-			<p>selected age : {value}</p>
-			<Button>Continue</Button>
+			<Form {...ageForm}>
+				<form onSubmit={ageForm.handleSubmit(onSubmit)} className="flex flex-col items-center gap-4">
+					<FormField
+						control={ageForm.control}
+						name="age"
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<>
+										<Slider
+											min={18}
+											max={90}
+											value={[value]}
+											name={field.name}
+											onValueChange={(e) => {handleChange(e)}}
+											onChange={(e) => {field.onChange(e)}}
+										/>
+										<p>selected age : {value}</p>
+									</>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Button>Continue</Button>
+				</form>
+			</Form>
 		</>
 	)
 }
