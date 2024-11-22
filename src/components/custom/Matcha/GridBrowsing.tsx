@@ -84,13 +84,11 @@ const GridBrowsing: React.FC = () => {
 		
 			pairs.forEach(([a, b]) => {
 				if (newSet.has(a) && newSet.has(b) && !clickedPairs && (index === a || index === b)) {
-					console.log(`Pair clicked: [${a}, ${b}]`);
 					setCompletedPairs((prev) => {
 						const newSet = new Set(prev);
 						newSet.add([a, b]);
 						return newSet;
 					});
-					console.log(completedPairs);
 				}
 			});
 	

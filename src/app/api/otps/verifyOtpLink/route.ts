@@ -3,15 +3,11 @@ import pool from '@/server/db';
 import { CryptoService } from '@/server/CryptoService';
 
 export async function POST(req: NextRequest) {
-	console.log('Request body:', req.body);
 	if (!req.body) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
 		const { encryptedOtp, encryptedUserId } = await req.json();
-
-		console.log('encryptedOtp Here:', encryptedOtp);
-		console.log('ecnryptedUserId Here:', encryptedUserId);
 
 		const cryptedOtp = encryptedOtp.split('.');
 		const cryptedUserId = encryptedUserId.split('.');
@@ -22,17 +18,12 @@ export async function POST(req: NextRequest) {
 
 		const decryptedOtp = cryptoService.decrypt(cryptedKeyOtp);
 		const userId = parseInt(cryptoService.decrypt(cryptedKeyUserId));
-		console.log('decryptedUserId:', userId);
 		const { otpNumber } = JSON.parse(decryptedOtp);
 		const otp = otpNumber;
-
-		console.log('Decrypted data:', decryptedOtp);
-		console.log('otp:', otp);
 
 		if (!otp || otp === '' || otp === undefined) {
 			return NextResponse.json({ error: 'Missing OTP' }, { status: 400 });
 		}
-		console.log('userId:', userId);
 		if (!userId || userId === undefined) {
 			return NextResponse.json({ error: 'Missing User ID' }, { status: 400 });
 		}
@@ -54,7 +45,6 @@ export async function POST(req: NextRequest) {
 		const otpTime = new Date(result.rows[0].created_at);
 		const diff = Math.abs(currentTime.getTime() - otpTime.getTime());
 		const diffMinutes = Math.ceil(diff / (1000 * 60));
-		console.log('diffMinutes:', diffMinutes);
 
 		if (diffMinutes > 5) {
 			console.log('Attempting to connect to database...');

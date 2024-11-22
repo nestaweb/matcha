@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/ui/button";
@@ -240,9 +240,28 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 	const userId = encryptedUserId?.split('.');
 	const router = useRouter();
 
+	useEffect(() => {
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === true) {
+					router.push('/register?step=3&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	if (encryptedOtp !== null && encryptedOtp !== "." && encryptedUserId !== null && encryptedUserId !== ".") {
-		console.log('encryptedOtp:', encryptedOtp);
-		console.log('encryptedUserId:', encryptedUserId);
 		fetch(`/api/otps/verifyOtpLink`, {
 			method: 'POST',
 			headers: {
@@ -327,6 +346,30 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 
 export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 	const [question, setQuestion] = useState(1);
+	const searchParams = useSearchParams();
+	const encryptedUserId = searchParams.get('userId');
+	const router = useRouter();
+
+	useEffect(() => {
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === true) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
 
 	return (
 		<>
