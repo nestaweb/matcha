@@ -770,33 +770,6 @@ export const QuestionFour: React.FC = () => {
 					<Button>Continue</Button>
 				</form>
 			</Form>
-			{/* <div className='flex gap-6'>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Friend</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Date</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Sex</p>
-				</div>
-				<div className='flex flex-col gap-2 items-center'>
-					<div className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
-						<div className='w-11 h-11 bg-foreground/80 rounded-full'></div>
-					</div>
-					<p className='text-foreground/60 text-center'>Serious</p>
-				</div>
-			</div>
-			<Button>Continue</Button> */}
 		</>
 	)
 }
