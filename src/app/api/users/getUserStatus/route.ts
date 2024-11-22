@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
-		console.log("Try to get status and send ", user.rows[0].verified)
 		console.log('Query successful:', user.rows);
 		return NextResponse.json(user.rows[0].verified, { status: 200 });
   	}

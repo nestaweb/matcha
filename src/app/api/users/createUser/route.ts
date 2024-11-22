@@ -18,9 +18,7 @@ export async function POST(req: NextRequest) {
 			[email]
 		);
 
-		console.log('User already exists:', user.rows);
 		if (user.rows.length > 0) {
-			console.log('User already exists:', user.rows);
 			const userExists = user.rows[0];
 			const passwordMatch = await bcrypt.compare(password, userExists.password);
 			if (passwordMatch) {

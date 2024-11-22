@@ -269,7 +269,6 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			if (response.status === 200) {
 				const data = await response.json();
 				if (data === true) {
-					console.log('User already verified');
 					router.push('/register?step=3&userId=' + encryptedUserId);
 				}
 			}
@@ -1174,7 +1173,6 @@ export const QuestionFive: React.FC = () => {
 						control={tagsForm.control}
 						name="tags"
 						render={({ field }) => {
-							console.log(field.value.split(','))
 							return (
 								<FormItem>
 									<FormControl>

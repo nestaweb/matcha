@@ -34,9 +34,7 @@ export async function POST(req: NextRequest) {
 		const {
 			email,
 			firstname, 
-		 } = user.rows[0];
-
-		console.log('This user:', user.rows[0]);
+		} = user.rows[0];
 
 		let otp;
 		while (true) {
