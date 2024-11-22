@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import Background from '@/ui/pixelart/background';
 import Link from "next/link";
 import { MoveLeft, User, MailCheck, Rocket, Settings2 } from "lucide-react";
-import { FirstStep, SecondStep, ThirdStep } from "@/custom/Register/Steps";
+import { FirstStep, FourthStep, SecondStep, ThirdStep } from "@/custom/Register/Steps";
 
 const Register: React.FC = () => {
 	return (
@@ -84,7 +84,10 @@ const RegisterContent: React.FC = () => {
 							step === 2 ?
 							<SecondStep />
 							:
-							<ThirdStep />
+							step===3 ? <ThirdStep />
+							: 
+							step === 4 ? <FourthStep />
+							: null
 						}
 					</div>
 				</div>

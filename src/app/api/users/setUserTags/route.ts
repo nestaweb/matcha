@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
-		const { encryptedUserId } = await req.json();
+		const { encryptedUserId, tags } = await req.json();
 
 		const cryptedUserId = encryptedUserId.split('.');
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
@@ -29,8 +29,17 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
+		const modifiedUser = await pool.query(
+			'UPDATE users SET tags = $1 WHERE id = $2 RETURNING *',
+			[tags, userId]
+		);
+
+		if (modifiedUser.rows.length === 0) {
+			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+		}
+
 		console.log('Query successful:', user.rows);
-		return NextResponse.json(user.rows[0].id, { status: 200 });
+		return NextResponse.json(modifiedUser.rows[0].tags, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

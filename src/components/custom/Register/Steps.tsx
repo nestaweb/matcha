@@ -450,7 +450,7 @@ export const QuestionOne: React.FC = () => {
 	const genderForm = useForm<z.infer<typeof genderFormSchema>>({
 		resolver: zodResolver(genderFormSchema),
 		defaultValues: {
-			gender: ""
+			gender: "dontwanttosay"
 		},
 	});
 
@@ -476,6 +476,62 @@ export const QuestionOne: React.FC = () => {
 		});
 	}
 
+	useEffect(() => {
+		fetch(`/api/users/getUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status !== 200) {
+				router.push('/register');
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === false) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserGender`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data !== null) {
+					router.push('/register?step=3&question=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What&apos;s your gender ?</h2>
@@ -487,7 +543,7 @@ export const QuestionOne: React.FC = () => {
 						render={({ field }) => (
 							<FormItem>
 								<FormControl>
-									<RadioGroup.Root defaultValue="dontwanttosay" className='flex gap-6' onChange={(e) => field.onChange(e)} name={field.name}>
+									<RadioGroup.Root defaultValue="dontwanttosay" className='flex gap-6' onValueChange={(value) => field.onChange(value)} name={field.name}>
 										<div className="flex flex-col gap-2 items-center">
 											<RadioGroup.Item value="notsure" id="r1"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
 												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
@@ -539,7 +595,7 @@ export const QuestionTwo: React.FC = () => {
 	const soForm = useForm<z.infer<typeof soFormSchema>>({
 		resolver: zodResolver(soFormSchema),
 		defaultValues: {
-			sexualOrientation: ""
+			sexualOrientation: "heterosexual"
 		},
 	});
 
@@ -564,6 +620,81 @@ export const QuestionTwo: React.FC = () => {
 			console.error('Error:', error);
 		});
 	}
+
+	useEffect(() => {
+		fetch(`/api/users/getUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status !== 200) {
+				router.push('/register');
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === false) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUseAge`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data !== null) {
+					router.push('/register?step=3&question=3&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+		fetch(`/api/users/getUserGender`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === null) {
+					router.push('/register?step=3&question=1&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What&apos;s your sexual orientation ?</h2>
@@ -575,7 +706,7 @@ export const QuestionTwo: React.FC = () => {
 						render={({ field }) => (
 							<FormItem>
 								<FormControl>
-									<RadioGroup.Root defaultValue="heterosexual" className='flex gap-6' onChange={(e) => field.onChange(e)} name={field.name}>
+									<RadioGroup.Root defaultValue="heterosexual" className='flex gap-6' onValueChange={(value) => field.onChange(value)} name={field.name}>
 										<div className="flex flex-col gap-2 items-center">
 											<RadioGroup.Item value="heterosexual" id="r1"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
 												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
@@ -624,11 +755,10 @@ const ageFormSchema = z.object({
 })
 
 export const QuestionThree: React.FC = () => {
-
 	const ageForm = useForm<z.infer<typeof ageFormSchema>>({
 		resolver: zodResolver(ageFormSchema),
 		defaultValues: {
-			age: ""
+			age: "18"
 		},
 	});
 
@@ -658,6 +788,81 @@ export const QuestionThree: React.FC = () => {
 	const handleChange = (val: number[]) => {
 		setValue(val[0]);
 	};
+
+	useEffect(() => {
+		fetch(`/api/users/getUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status !== 200) {
+				router.push('/register');
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === false) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserAge`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data !== null) {
+					router.push('/register?step=3&question=4&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+		fetch(`/api/users/getUserSexualOrientation`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === null) {
+					router.push('/register?step=3&question=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What&apos;s your age ?</h2>
@@ -674,6 +879,7 @@ export const QuestionThree: React.FC = () => {
 											min={18}
 											max={90}
 											value={[value]}
+											ref={field.ref}
 											name={field.name}
 											onValueChange={(e) => {handleChange(e)}}
 											onChange={(e) => {field.onChange(e)}}
@@ -700,7 +906,7 @@ export const QuestionFour: React.FC = () => {
 	const goalForm = useForm<z.infer<typeof goalFormSchema>>({
 		resolver: zodResolver(goalFormSchema),
 		defaultValues: {
-			goal: ""
+			goal: "date"
 		},
 	});
 
@@ -725,6 +931,81 @@ export const QuestionFour: React.FC = () => {
 			console.error('Error:', error);
 		});
 	}
+
+	useEffect(() => {
+		fetch(`/api/users/getUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status !== 200) {
+				router.push('/register');
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === false) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserGoal`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data !== null) {
+					router.push('/register?step=3&question=5&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+		fetch(`/api/users/getUserAge`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === null) {
+					router.push('/register?step=3&question=3&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	return (
 		<>
 			<h2 className='text-xl font-medium text-foreground/80'>What are you searching for ?</h2>
@@ -736,7 +1017,7 @@ export const QuestionFour: React.FC = () => {
 						render={({ field }) => (
 							<FormItem>
 								<FormControl>
-									<RadioGroup.Root defaultValue="date" className='flex gap-6' onChange={(e) => field.onChange(e)} name={field.name}>
+									<RadioGroup.Root defaultValue="date" className='flex gap-6' onValueChange={(value) => field.onChange(value)} name={field.name}>
 										<div className="flex flex-col gap-2 items-center">
 											<RadioGroup.Item value="friend" id="r1"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
 												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
@@ -756,7 +1037,7 @@ export const QuestionFour: React.FC = () => {
 											<p className='text-foreground/60 text-center'>Sex</p>
 										</div>
 										<div className="flex flex-col gap-2 items-center">
-											<RadioGroup.Item value="serious" id="r5"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+											<RadioGroup.Item value="serious" id="r4"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
 												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
 											</RadioGroup.Item>
 											<p className='text-foreground/60 text-center'>Serious</p>
@@ -774,19 +1055,147 @@ export const QuestionFour: React.FC = () => {
 	)
 }
 
+const tagsFormSchema = z.object({
+	tags: z.string()
+})
+
 export const QuestionFive: React.FC = () => {
 	const [value, setValue] = useState<string[]>([]);
 
+	const tagsForm = useForm<z.infer<typeof tagsFormSchema>>({
+		resolver: zodResolver(tagsFormSchema),
+		defaultValues: {
+			tags: ""
+		},
+	});
+
+	const searchParams = useSearchParams();
+	const encryptedUserId = searchParams.get('userId');
+	const router = useRouter();
+
+	function onSubmit(values: z.infer<typeof tagsFormSchema>) {
+		fetch(`/api/users/setUserTags`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId, ...values}),
+		})
+		.then((response) => {
+			if (response.status === 200) {
+				router.push('/register?step=4&userId=' + encryptedUserId);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
+	useEffect(() => {
+		fetch(`/api/users/getUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status !== 200) {
+				router.push('/register');
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserStatus`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === false) {
+					router.push('/register?step=2&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+
+		fetch(`/api/users/getUserTags`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data !== null) {
+					router.push('/register?step=4&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+		fetch(`/api/users/getUserGoal`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: encryptedUserId}),
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				if (data === null) {
+					router.push('/register?step=3&question=4&userId=' + encryptedUserId);
+				}
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	})
+
 	return (
 		<>
-			<h2 className='text-xl font-medium text-foreground/80'>What points of interests ?</h2>
-			<TagsInput
-				value={value}
-				onValueChange={setValue}
-				placeholder="enter your points of interests"
-				className="w-2/3"
-			/>
-			<Button>Continue</Button>
+			<h2 className='text-xl font-medium text-foreground/80'>What are your points of interests ?</h2>
+			<Form {...tagsForm}>
+				<form onSubmit={tagsForm.handleSubmit(onSubmit)} className="flex flex-col items-center gap-4">
+					<FormField
+						control={tagsForm.control}
+						name="tags"
+						render={({ field }) => {
+							console.log(field.value.split(','))
+							return (
+								<FormItem>
+									<FormControl>
+										<TagsInput
+											onValueChange={(val) => {
+												setValue(val);
+												field.onChange(val.join(','));
+											}}
+											placeholder="enter your points of interests"
+											className="w-2/3"
+											value={field.value.split(',').length == 1 && field.value.split(',') [0] == "" ? [] : field.value.split(',')}
+											ref={field.ref}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+						)}}
+					/>
+					<Button>Continue</Button>
+				</form>
+			</Form>
 		</>
 	)
 }
@@ -796,7 +1205,9 @@ export const FourthStep: React.FC = () => {
 		<>
 			<h2 className='font-medium text-3xl'>Welcome to 42Matcha</h2>
 			<div className='flex flex-col w-2/3 mt-[5vh] z-20 items-center gap-6'>
-				<Button>Get started</Button>
+				<Link href="/login">
+					<Button>Get started</Button>
+				</Link>
 			</div>
 		</>
 	)
