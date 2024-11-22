@@ -252,6 +252,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			if (response.status === 200) {
 				const data = await response.json();
 				if (data === true) {
+					console.log('User already verified');
 					router.push('/register?step=3&userId=' + encryptedUserId);
 				}
 			}
@@ -307,6 +308,27 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 		});
 	}
 
+	function resendOtp() {
+		if (userId === null || userId === undefined) {
+			return;
+		}
+		fetch('/api/otps/resendOtp', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({encryptedUserId: userId[0], iv: userId[1]}),
+		})
+		.then((response) => {
+			if (response.status === 200) {
+				router.push('/register?step=3&userId=' + encryptedUserId);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
 	return (
 		<>
 			<h2 className='font-medium text-3xl'>Verification code</h2>
@@ -337,7 +359,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 						)}
 					/>
 					<Button>Verify</Button>
-					<p className='text-center'>Don&apos;t receive ? <Link href="#" className='underline'>Click to resend</Link></p>
+					<p className='text-center'>Don&apos;t receive ? <span onClick={() => {resendOtp()}} className='underline cursor-pointer'>Click to resend</span></p>
 				</form>
 			</Form>
 		</>
@@ -350,7 +372,6 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 	const encryptedUserId = searchParams.get('userId');
 	const router = useRouter();
 
-	console.log(encryptedUserId);
 	useEffect(() => {
 		fetch(`/api/users/getUserStatus`, {
 			method: 'POST',
