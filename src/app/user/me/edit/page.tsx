@@ -28,7 +28,7 @@ const EditUser: React.FC = () => {
 	const [locationEnabled, setLocationEnabled] = useState(false);
 
 	if (!userId) {
-		const isLoggedIn = fetch('/api/users/isLoggedIn', {
+		const isLoggedIn = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -60,7 +60,6 @@ const EditUser: React.FC = () => {
 				setTags(data.tags ? data.tags.split(',') : []);
 				setFriends(data.friends ? data.friends.split(',') : []);
 				setLocationEnabled(data.locationAccess);
-				console.log(data.locationAccess);
 			}
 		});
 	}

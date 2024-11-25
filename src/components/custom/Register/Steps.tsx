@@ -88,7 +88,7 @@ export const FirstStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -274,7 +274,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -292,7 +292,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -320,7 +320,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -341,7 +341,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -402,7 +402,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 		fetch(`/api/users/getUserStatus`, {
 			method: 'POST',
@@ -420,7 +420,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -471,7 +471,7 @@ export const QuestionOne: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -489,7 +489,7 @@ export const QuestionOne: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserStatus`, {
@@ -508,7 +508,7 @@ export const QuestionOne: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserGender`, {
@@ -527,7 +527,7 @@ export const QuestionOne: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -616,7 +616,7 @@ export const QuestionTwo: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -634,7 +634,7 @@ export const QuestionTwo: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserStatus`, {
@@ -653,7 +653,7 @@ export const QuestionTwo: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUseAge`, {
@@ -672,7 +672,7 @@ export const QuestionTwo: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 		fetch(`/api/users/getUserGender`, {
 			method: 'POST',
@@ -690,7 +690,7 @@ export const QuestionTwo: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -779,7 +779,7 @@ export const QuestionThree: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -802,7 +802,7 @@ export const QuestionThree: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserStatus`, {
@@ -821,7 +821,7 @@ export const QuestionThree: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserAge`, {
@@ -840,7 +840,7 @@ export const QuestionThree: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 		fetch(`/api/users/getUserSexualOrientation`, {
 			method: 'POST',
@@ -858,7 +858,7 @@ export const QuestionThree: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -927,7 +927,7 @@ export const QuestionFour: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -945,7 +945,7 @@ export const QuestionFour: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserStatus`, {
@@ -964,7 +964,7 @@ export const QuestionFour: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserGoal`, {
@@ -983,7 +983,7 @@ export const QuestionFour: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 		fetch(`/api/users/getUserAge`, {
 			method: 'POST',
@@ -1001,7 +1001,7 @@ export const QuestionFour: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 
@@ -1086,7 +1086,7 @@ export const QuestionFive: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 
@@ -1104,7 +1104,7 @@ export const QuestionFive: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserStatus`, {
@@ -1123,7 +1123,7 @@ export const QuestionFive: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 
 		fetch(`/api/users/getUserTags`, {
@@ -1142,7 +1142,7 @@ export const QuestionFive: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 		fetch(`/api/users/getUserGoal`, {
 			method: 'POST',
@@ -1160,7 +1160,7 @@ export const QuestionFive: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	})
 

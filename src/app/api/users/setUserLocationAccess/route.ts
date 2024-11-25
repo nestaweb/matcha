@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		console.log('Query successful:', user.rows);
-		return NextResponse.json(modifiedUser.rows[0].locationAccess, { status: 200 });
+		return NextResponse.json(modifiedUser.rows[0].locationaccess, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

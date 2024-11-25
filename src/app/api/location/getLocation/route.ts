@@ -5,12 +5,8 @@ export async function POST() {
 		const ipResponse = await fetch('https://api.ipify.org?format=json');
 		const { ip } = await ipResponse.json();
 
-		console.log('ipResponse:', ipResponse);
-
 		const geoResponse = await fetch(`http://ip-api.com/json/${ip}`);
 		const geoData = await geoResponse.json();
-
-		console.log('GeoData:', geoData);
 
 
 		if (geoData.status === 'fail') {

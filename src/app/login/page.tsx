@@ -46,7 +46,7 @@ const Login: React.FC = () => {
 		},
 	});
 
-	fetch('/api/users/isLoggedIn', {
+	fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json'
@@ -72,7 +72,7 @@ const Login: React.FC = () => {
 			}
 		})
 		.catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 		});
 	}
 

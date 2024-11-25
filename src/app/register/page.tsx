@@ -21,7 +21,7 @@ const RegisterContent: React.FC = () => {
 	const step = parseInt(search.get('step') || '1');
 	const router = useRouter();
 
-	fetch('/api/users/isLoggedIn', {
+	fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json'
