@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 			const passwordMatch = await bcrypt.compare(password, userExists.password);
 			if (passwordMatch) {
 				const isUserVerified = await pool.query(
-					'SELECT * FROM users WHERE user_id = $1 AND verified = $2',
+					'SELECT * FROM users WHERE id = $1 AND verified = $2',
 					[userExists.id, true]
 				);
 				if (isUserVerified.rows.length > 0) {

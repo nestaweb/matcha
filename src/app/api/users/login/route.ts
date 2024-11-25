@@ -40,6 +40,12 @@ export async function POST(req: NextRequest) {
 
 		cookieStore.set('userId', encryptedParamUserId);
 
+		const lastSeen = new Date().toISOString();
+		const updateLastSeen = await pool.query(
+			'UPDATE users SET last_seen = $1 WHERE id = $2',
+			[lastSeen, userExists.id]
+		);
+
 
 		const dayNumber = new Date().getDate();
 		const MonthNumber = new Date().getMonth();

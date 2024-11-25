@@ -1,3 +1,5 @@
+'use client';
+
 import NavBar from '@/custom/NavBar/NavBar';
 import Background from '@/ui/pixelart/background';
 import { Button } from '@/ui/button';
@@ -13,8 +15,80 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { UserResponse } from '@/types/user';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const EditUser: React.FC = () => {
+	const [userId, setUserId] = useState('');
+	const [user, setUser] = useState({} as UserResponse);
+	const [tags, setTags] = useState([] as string[]);
+	const [friends, setFriends] = useState([] as string[]);
+	const router = useRouter();
+	const [locationEnabled, setLocationEnabled] = useState(false);
+
+	if (!userId) {
+		const isLoggedIn = fetch('/api/users/isLoggedIn', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setUserId(data);
+			}
+			else {
+				router.push('/login');
+			}
+		})
+	}
+
+	if (userId && !user.email) {
+		const getUser = fetch(`/api/users/getUserInfos`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setUser(data);
+				setTags(data.tags ? data.tags.split(',') : []);
+				setFriends(data.friends ? data.friends.split(',') : []);
+				setLocationEnabled(data.locationAccess);
+				console.log(data.locationAccess);
+			}
+		});
+	}
+
+	function enableLocation() {
+		fetch('/api/users/setUserLocationAccess', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId, access: 'granted' })
+		})
+		setLocationEnabled(true);
+		setUser({...user, locationAccess: true});
+	}
+
+	function disableLocation() {
+		fetch('/api/users/setUserLocationAccess', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId, access: 'denied' })
+		})
+		setLocationEnabled(false);
+		setUser({...user, locationAccess: false});
+	}
+
 	return (
 		<Background variant='userProfile'>
 			<NavBar/>
@@ -25,12 +99,24 @@ const EditUser: React.FC = () => {
 							<div className='flex gap-3 w-2/3'>
 								<Input className='text-4xl py-3 md:text-2xl' defaultValue={"Nesta"} />
 							</div>
-							<div className='flex items-center gap-2 px-1 w-fit'>
-								<div className='w-3 h-3 bg-teal-400/30 flex items-center justify-center'>
-									<div className='w-1.5 h-1.5 bg-teal-400'></div>
+							{
+								user.locationAccess && user.city && user.city.length > 0 &&
+								<div className='flex items-center gap-2 px-1 w-fit cursor-pointer' onClick={disableLocation}>
+									<div className='w-3 h-3 bg-teal-400/30 flex items-center justify-center'>
+										<div className='w-1.5 h-1.5 bg-teal-400'></div>
+									</div>
+									<p>{user.city} - Click to disable</p>
 								</div>
-								<p>Paris</p>
-							</div>
+							}
+							{
+								!user.locationAccess && !locationEnabled && 
+								<div className='flex items-center gap-2 px-1 w-fit cursor-pointer' onClick={enableLocation}>
+									<div className='w-3 h-3 bg-rose-400/30 flex items-center justify-center'>
+										<div className='w-1.5 h-1.5 bg-rose-400'></div>
+									</div>
+									<p>Click to enable Location</p>
+								</div>
+							}
 						</div>
 						<div className='text-lg whitespace-nowrap'>27 <span className='text-sm text-foreground/60'>relations</span></div>
 					</div>
@@ -47,7 +133,7 @@ const EditUser: React.FC = () => {
 							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end items-center'>
-							<Input type='number' className='text-right' defaultValue={184} />
+							<Input type='number' className='text-right' defaultValue={0} />
 						</div>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Sexual Orientation</p>

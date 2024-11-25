@@ -36,7 +36,7 @@ export async function GET() {
 		}
 
 		console.log('Query successful:', user.rows);
-		return NextResponse.json({ status: 200 });
+		return NextResponse.json(userIdValue, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

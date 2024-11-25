@@ -1,11 +1,104 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import NavBar from '@/custom/NavBar/NavBar';
 import Background from '@/ui/pixelart/background';
 import { Button } from '@/ui/button';
 import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { UserResponse } from '@/types/user';
+import { useRouter } from 'next/navigation';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import getCityFromCoordinates from '@/utils/getCityFromCoordonates';
 
 const UserMe: React.FC = () => {
+	const [userId, setUserId] = useState('');
+	const [user, setUser] = useState({} as UserResponse);
+	const [tags, setTags] = useState([] as string[]);
+	const [friends, setFriends] = useState([] as string[]);
+	const router = useRouter();
+	const { latitude, longitude, error, loading } = useGeolocation();
+	const [city, setCity] = useState('');
+
+	if (!userId) {
+		const isLoggedIn = fetch('/api/users/isLoggedIn', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setUserId(data);
+			}
+			else {
+				router.push('/login');
+			}
+		})
+	}
+
+	if (userId && !user.email) {
+		const getUser = fetch(`/api/users/getUserInfos`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setUser(data);
+				setTags(data.tags ? data.tags.split(',') : []);
+				setFriends(data.friends ? data.friends.split(',') : []);
+			}
+		});
+	}
+
+	const fetchCity = async (latitude: number, longitude: number) => {
+		const result = await getCityFromCoordinates(latitude, longitude);
+		setCity(result);
+	};
+
+	const saveCity = async () => {
+		if (latitude && longitude) {
+			fetchCity(latitude, longitude);
+			fetch('/api/users/setUserCity', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ encryptedUserId: userId, city })
+			})
+		}
+	}
+
+	function saveLocation() {
+		if (latitude && longitude) {
+			const location = `${latitude},${longitude}`;
+			fetch('/api/users/setUserLocation', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ encryptedUserId: userId, location })
+			})
+			.then(async (response) => {
+				if (response.status === 200) {
+					saveCity();
+				}
+			});
+		}
+	}
+
+	useEffect(() => {
+		if (latitude && longitude) {
+			saveLocation();
+		}
+	});
+
 	return (
 		<Background variant='userProfile'>
 			<NavBar/>
@@ -14,39 +107,57 @@ const UserMe: React.FC = () => {
 					<div className='flex gap-8 items-start justify-between'>
 						<div className='flex flex-col gap-3'>
 							<div className='flex gap-3'>
-								<p className='text-4xl'>Nesta</p>
-								<span className='text-lg -mt-1'>[18]</span>
+								<p className='text-4xl'>{user.firstName}</p>
+								<span className='text-lg -mt-1'>[{user.age}]</span>
 							</div>
-							<div className='flex items-center gap-2 px-1 w-fit'>
-								<div className='w-3 h-3 bg-teal-400/30 flex items-center justify-center'>
-									<div className='w-1.5 h-1.5 bg-teal-400'></div>
+							{
+								user.locationAccess && user.city && user.city.length > 0 &&
+								<div className='flex items-center gap-2 px-1 w-fit'>
+									<div className='w-3 h-3 bg-teal-400/30 flex items-center justify-center'>
+										<div className='w-1.5 h-1.5 bg-teal-400'></div>
+									</div>
+									<p>{user.city}</p>
 								</div>
-								<p>Paris</p>
-							</div>
+							}
+							{
+								!user.locationAccess &&
+								<div className='flex items-center gap-2 px-1 w-fit'>
+									<div className='w-3 h-3 bg-rose-400/30 flex items-center justify-center'>
+										<div className='w-1.5 h-1.5 bg-rose-400'></div>
+									</div>
+									<p>Not available</p>
+								</div>
+							}
 						</div>
-						<div className='text-lg'>27 <span className='text-sm text-foreground/60'>relations</span></div>
+						<div className='text-lg'>{friends.length} <span className='text-sm text-foreground/60'>relation{friends.length > 1 ? 's' : ''}</span></div>
 					</div>
 					<div className='grid grid-cols-2 gap-2 gap-y-3'>
-						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
-							<p>Height</p>
-							<p>\\</p>
-						</div>
-						<div className='col-start-2 flex justify-end'>
-							<p>184 <span className='text-sm text-foreground/60'>cm</span></p>
-						</div>
+						{
+							user.height && user.height > 0 &&
+							<div className='flex items-center w-full justify-between col-start-1 font-medium'>
+								<p>Height</p>
+								<p>\\</p>
+							</div>
+						}
+						{
+							user.height && user.height > 0 &&
+							<div className='col-start-2 flex justify-end'>
+								<p>{user.height} <span className='text-sm text-foreground/60'>cm</span></p>
+							</div>
+						}
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Sexual Orientation</p>
 							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
-							<p>Heterosexual</p>
+							<p className='capitalize'>{user.sexualOrientation}</p>
 						</div>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Searching for</p>
 							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
-							<p>Friends</p>
+							<p className='capitalize'>{user.goal}</p>
 						</div>
 					</div>
 					<div className='flex flex-col gap-2 mt-12'>
@@ -55,23 +166,27 @@ const UserMe: React.FC = () => {
 							<p>\\</p>
 						</div>
 						<div className='flex flex-wrap gap-2'>
-							<div className='bg-foreground/90 backdrop-blur text-primary px-4 py-1 rounded-3xl cursor-default'>
-								<p className='flex items-center gap-1'><span className='text-primary/70'>#</span>Bouldering</p>
-							</div>
-							<div className='bg-foreground/90 backdrop-blur text-primary px-4 py-1 rounded-3xl cursor-default'>
-								<p className='flex items-center gap-1'><span className='text-primary/70'>#</span>Books</p>
-							</div>
+							{
+								tags.map((tag, index) => (
+									<div key={index} className='bg-foreground/90 backdrop-blur text-primary px-4 py-1 rounded-3xl cursor-default'>
+										<p className='flex items-center gap-1'><span className='text-primary/70'>#</span>{tag}</p>
+									</div>
+								))
+							}
 						</div>
 					</div>
-					<div className='flex flex-col gap-2'>
-						<div className='flex items-center w-1/2 justify-between pr-1 font-medium'>
-							<p>Bio</p>
-							<p>\\</p>
+					{
+						user.bio && user.bio.length > 0 &&
+						<div className='flex flex-col gap-2'>
+							<div className='flex items-center w-1/2 justify-between pr-1 font-medium'>
+								<p>Bio</p>
+								<p>\\</p>
+							</div>
+							<p>
+								{user.bio}
+							</p>
 						</div>
-						<p>
-							Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas recusandae deleniti sint pariatur soluta cum veniam officia consectetur explicabo tenetur laborum similique nesciunt, odit labore? Beatae qui officiis temporibus omnis.
-						</p>
-					</div>
+					}
 					<div className='flex gap-2'>
 						<Link href="/user/me/edit" className='w-full'>
 							<Button className='w-full'>Edit Profile</Button>
