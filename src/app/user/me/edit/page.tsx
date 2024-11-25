@@ -90,7 +90,7 @@ const EditUser: React.FC = () => {
 
 	return (
 		<Background variant='userProfile'>
-			<NavBar/>
+			<NavBar isLoggedIn={userId ? true : false} />
 			<div className='flex justify-between gap-16 p-4 mt-[10vh]'>
 				<div className='flex flex-col gap-8 bg-[#f4f4f4bb] backdrop-blur rounded-2xl w-2/6 p-6 border-2 border-foreground/5 max-h-[84vh] overflow-x-scroll'>
 					<div className='flex gap-8 items-start justify-between'>
