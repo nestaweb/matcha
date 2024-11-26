@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     locationAccess BOOLEAN DEFAULT FALSE,
     fame INT DEFAULT 0,
     profile_visited TEXT DEFAULT '{}',
-    profile_ikes TEXT DEFAULT '{}',
+    profile_liked TEXT DEFAULT '{}',
     report_count INT DEFAULT 0,
     blocked_accounts TEXT DEFAULT '{}',
     connected BOOLEAN DEFAULT FALSE,
