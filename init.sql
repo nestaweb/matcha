@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     city VARCHAR(255),
     friends VARCHAR(255),
     locationAccess BOOLEAN DEFAULT FALSE,
-    fame INT DEFAULT 0,
+    fame INT DEFAULT 50,
     profile_visited TEXT DEFAULT '{}',
     profile_liked TEXT DEFAULT '{}',
     report_count INT DEFAULT 0,
