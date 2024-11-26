@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
 		}
 
 		const dayNumber = new Date().getDate();
-		const MonthNumber = new Date().getMonth();
 		const Month = new Date().toLocaleString('default', { month: 'short' });
 		const Year = new Date().getFullYear();
 
