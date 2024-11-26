@@ -107,7 +107,7 @@ const UserMe: React.FC = () => {
 					<div className='flex gap-8 items-start justify-between'>
 						<div className='flex flex-col gap-3'>
 							<div className='flex gap-3'>
-								<p className='text-4xl'>{user.firstName}</p>
+								<p className='text-4xl'>{user.firstName} {user.lastName}</p>
 								<span className='text-lg -mt-1'>[{user.age}]</span>
 							</div>
 							{
