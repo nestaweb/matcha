@@ -59,7 +59,7 @@ const Login: React.FC = () => {
 	})
 
 	function onSubmit(values: z.infer<typeof loginFormSchema>) {
-		fetch('/api/users/login', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

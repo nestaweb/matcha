@@ -46,7 +46,7 @@ const EditUser: React.FC = () => {
 	}
 
 	if (userId && !user.email) {
-		const getUser = fetch(`/api/users/getUserInfos`, {
+		const getUser = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserInfos`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ const EditUser: React.FC = () => {
 	}
 
 	function enableLocation() {
-		fetch('/api/users/setUserLocationAccess', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLocationAccess`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ const EditUser: React.FC = () => {
 	}
 
 	function disableLocation() {
-		fetch('/api/users/setUserLocationAccess', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLocationAccess`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

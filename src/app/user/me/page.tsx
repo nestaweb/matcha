@@ -40,7 +40,7 @@ const UserMe: React.FC = () => {
 	}
 
 	if (userId && !user.email) {
-		const getUser = fetch(`/api/users/getUserInfos`, {
+		const getUser = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserInfos`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ const UserMe: React.FC = () => {
 	const saveCity = async () => {
 		if (latitude && longitude) {
 			fetchCity(latitude, longitude);
-			fetch('/api/users/setUserCity', {
+			fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserCity`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -78,7 +78,7 @@ const UserMe: React.FC = () => {
 	function saveLocation() {
 		if (latitude && longitude) {
 			const location = `${latitude},${longitude}`;
-			fetch('/api/users/setUserLocation', {
+			fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLocation`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

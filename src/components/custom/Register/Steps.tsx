@@ -74,7 +74,7 @@ export const FirstStep: React.FC<StepsProps> = ({  }) => {
 	});
 
 	async function onSubmit(values: z.infer<typeof registerFormSchema>) {
-		fetch('/api/users/createUser', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/users/createUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -245,7 +245,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			router.push('/register');
 		}
 
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -258,7 +258,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 			}
 		})
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 	})
 
 	if (encryptedOtp !== null && encryptedOtp !== "." && encryptedUserId !== null && encryptedUserId !== ".") {
-		fetch(`/api/otps/verifyOtpLink`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/otps/verifyOtpLink`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 		if (userId === null || userId === undefined) {
 			return;
 		}
-		fetch('/api/otps/verifyOtp', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/otps/verifyOtp`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 		if (userId === null || userId === undefined) {
 			return;
 		}
-		fetch('/api/otps/resendOtp', {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/otps/resendOtp`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -389,7 +389,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 	const router = useRouter();
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -404,7 +404,7 @@ export const ThirdStep: React.FC<StepsProps> = ({ }) => {
 		.catch((error) => {
 			// console.error('Error:', error);
 		});
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -458,7 +458,7 @@ export const QuestionOne: React.FC = () => {
 	const router = useRouter();
 
 	function onSubmit(values: z.infer<typeof genderFormSchema>) {
-		fetch(`/api/users/setUserGender`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserGender`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -476,7 +476,7 @@ export const QuestionOne: React.FC = () => {
 	}
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -492,7 +492,7 @@ export const QuestionOne: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -511,7 +511,7 @@ export const QuestionOne: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserGender`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserGender`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -603,7 +603,7 @@ export const QuestionTwo: React.FC = () => {
 	const router = useRouter();
 
 	function onSubmit(values: z.infer<typeof soFormSchema>) {
-		fetch(`/api/users/setUserSexualOrientation`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserSexualOrientation`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -621,7 +621,7 @@ export const QuestionTwo: React.FC = () => {
 	}
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -637,7 +637,7 @@ export const QuestionTwo: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -656,7 +656,7 @@ export const QuestionTwo: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUseAge`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUseAge`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -674,7 +674,7 @@ export const QuestionTwo: React.FC = () => {
 		.catch((error) => {
 			// console.error('Error:', error);
 		});
-		fetch(`/api/users/getUserGender`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserGender`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -766,7 +766,7 @@ export const QuestionThree: React.FC = () => {
 	const router = useRouter();
 
 	function onSubmit(values: z.infer<typeof ageFormSchema>) {
-		fetch(`/api/users/setUserAge`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserAge`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -789,7 +789,7 @@ export const QuestionThree: React.FC = () => {
 	};
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -805,7 +805,7 @@ export const QuestionThree: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -824,7 +824,7 @@ export const QuestionThree: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserAge`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserAge`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -842,7 +842,7 @@ export const QuestionThree: React.FC = () => {
 		.catch((error) => {
 			// console.error('Error:', error);
 		});
-		fetch(`/api/users/getUserSexualOrientation`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserSexualOrientation`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -914,7 +914,7 @@ export const QuestionFour: React.FC = () => {
 	const router = useRouter();
 
 	function onSubmit(values: z.infer<typeof goalFormSchema>) {
-		fetch(`/api/users/setUserGoal`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserGoal`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -932,7 +932,7 @@ export const QuestionFour: React.FC = () => {
 	}
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -948,7 +948,7 @@ export const QuestionFour: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -967,7 +967,7 @@ export const QuestionFour: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserGoal`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserGoal`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -985,7 +985,7 @@ export const QuestionFour: React.FC = () => {
 		.catch((error) => {
 			// console.error('Error:', error);
 		});
-		fetch(`/api/users/getUserAge`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserAge`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1073,7 +1073,7 @@ export const QuestionFive: React.FC = () => {
 	const router = useRouter();
 
 	function onSubmit(values: z.infer<typeof tagsFormSchema>) {
-		fetch(`/api/users/setUserTags`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserTags`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1091,7 +1091,7 @@ export const QuestionFive: React.FC = () => {
 	}
 
 	useEffect(() => {
-		fetch(`/api/users/getUser`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1107,7 +1107,7 @@ export const QuestionFive: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserStatus`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserStatus`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1126,7 +1126,7 @@ export const QuestionFive: React.FC = () => {
 			// console.error('Error:', error);
 		});
 
-		fetch(`/api/users/getUserTags`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserTags`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1144,7 +1144,7 @@ export const QuestionFive: React.FC = () => {
 		.catch((error) => {
 			// console.error('Error:', error);
 		});
-		fetch(`/api/users/getUserGoal`, {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserGoal`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
