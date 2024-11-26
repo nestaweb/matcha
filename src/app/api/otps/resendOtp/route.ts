@@ -56,6 +56,9 @@ export async function POST(req: NextRequest) {
 			[userId, otp]
 		);
 
+		if (result.rows.length === 0) {
+			return NextResponse.json({ error: 'Failed to create OTP' }, { status: 500 });
+		}
 
 		const dayNumber = new Date().getDate();
 		const Month = new Date().toLocaleString('default', { month: 'short' });
