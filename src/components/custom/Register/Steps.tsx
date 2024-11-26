@@ -1036,10 +1036,10 @@ export const QuestionFour: React.FC = () => {
 											<p className='text-foreground/60 text-center'>Sex</p>
 										</div>
 										<div className="flex flex-col gap-2 items-center">
-											<RadioGroup.Item value="serious" id="r4"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
+											<RadioGroup.Item value="love" id="r4"  className='w-14 h-14 rounded-full border-2 border-foreground/15 flex items-center justify-center'>
 												<RadioGroup.Indicator className='w-11 h-11 bg-foreground/80 rounded-full'/>
 											</RadioGroup.Item>
-											<p className='text-foreground/60 text-center'>Serious</p>
+											<p className='text-foreground/60 text-center'>Love</p>
 										</div>
 									</RadioGroup.Root>
 								</FormControl>

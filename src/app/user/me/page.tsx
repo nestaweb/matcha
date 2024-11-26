@@ -133,24 +133,28 @@ const UserMe: React.FC = () => {
 					</div>
 					<div className='grid grid-cols-2 gap-2 gap-y-3'>
 						{
-							user.height && user.height > 0 &&
+							user.height && user.height > 0 ?
 							<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 								<p>Height</p>
 								<p>\\</p>
 							</div>
+							:
+							null
 						}
 						{
-							user.height && user.height > 0 &&
+							user.height && user.height > 0 ?
 							<div className='col-start-2 flex justify-end'>
 								<p>{user.height} <span className='text-sm text-foreground/60'>cm</span></p>
 							</div>
+							:
+							null
 						}
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Sexual Orientation</p>
 							<p>\\</p>
 						</div>
 						<div className='col-start-2 flex justify-end'>
-							<p className='capitalize'>{user.sexualOrientation}</p>
+							<p className={`${user.sexualOrientation != "dontwanttosay" ? 'capitalize' : ""}`}>{user.sexualOrientation != "dontwanttosay" ? user.sexualOrientation : "Don't want to say"}</p>
 						</div>
 						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
 							<p>Searching for</p>
