@@ -17,10 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     friends VARCHAR(255),
     locationAccess BOOLEAN DEFAULT FALSE,
     fame INT DEFAULT 50,
-    profile_visited TEXT DEFAULT '{}',
-    profile_liked TEXT DEFAULT '{}',
     report_count INT DEFAULT 0,
-    blocked_accounts TEXT DEFAULT '{}',
     connected BOOLEAN DEFAULT FALSE,
     last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     verified BOOLEAN DEFAULT FALSE,
@@ -28,6 +25,57 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS user_friends (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    friend_id INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (friend_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (user_id, friend_id)
+);
+
+CREATE TABLE IF NOT EXISTS profile_liked (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    liked_user_id INT NOT NULL,
+    liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (liked_user_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (user_id, liked_user_id)
+);
+
+CREATE TABLE IF NOT EXISTS profile_blocked (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    blocked_user_id INT NOT NULL,
+    blocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (blocked_user_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (user_id, blocked_user_id)
+);
+
+CREATE TABLE IF NOT EXISTS profile_reported (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    reported_user_id INT NOT NULL,
+    reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_user_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (user_id, reported_user_id)
+);
+
+CREATE TABLE IF NOT EXISTS profile_views (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    viewed_user_id INT NOT NULL,
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (viewed_user_id) REFERENCES users (id) ON DELETE CASCADE,
+    UNIQUE (user_id, viewed_user_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS otps (
     id SERIAL PRIMARY KEY,
@@ -51,3 +99,7 @@ INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientati
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User10', 'LastName11', 'l.11@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 42, 'date', '42', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User11', 'LastName12', 'l.12@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 57, 'date', '42', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User12', 'LastName13', 'l.13@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 19, 'date', '42', true);
+
+INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
+INSERT INTO user_friends (user_id, friend_id) VALUES (1, 3);
+INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);

@@ -52,7 +52,7 @@ const UserMe: React.FC = () => {
 				const data = await response.json();
 				setUser(data);
 				setTags(data.tags ? data.tags.split(',') : []);
-				setFriends(data.friends ? data.friends.split(',') : []);
+				setFriends(data.friends);
 			}
 		});
 	}

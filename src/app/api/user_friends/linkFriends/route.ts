@@ -29,26 +29,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
-		const userFriends = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user_friends/getUserFriends`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ encryptedUserId })
-		})
-
-		let friends = [];
-		if (userFriends.status === 200) {
-			const data = await userFriends.json();
-			friends = data.map((friend: any) => {
-				if (friend.user_id === userId) {
-					return friend.friend_id;
-				}
-				return friend.user_id;
-			});
-		}
-
-		console.log('Query successful:', friends);
+		
 
 		console.log('Query successful:', user.rows);
 		const userInfos = {
@@ -63,7 +44,7 @@ export async function POST(req: NextRequest) {
 			height: user.rows[0].height,
 			bio: user.rows[0].bio,
 			location: user.rows[0].location,
-			friends: friends,
+			friends: user.rows[0].friends,
 			locationAccess: user.rows[0].locationaccess,
 			city: user.rows[0].city
 		}
