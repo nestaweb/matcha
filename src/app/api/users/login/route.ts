@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Missing email or password' }, { status: 400 });
 		}
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const user = await pool.query(
 			'SELECT * FROM users WHERE email = $1',

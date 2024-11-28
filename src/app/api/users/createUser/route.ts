@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 	try {
 		const { firstName, lastName, email, password } = await req.json();
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const user = await pool.query(
 			'SELECT * FROM users WHERE email = $1',

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 	try {
 		const { otp, userId, iv } = await req.json();
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const cryptedKey = { encryptedText: userId, iv };
 		const decryptedData = parseInt(cryptoService.decrypt(cryptedKey));

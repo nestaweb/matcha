@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 		const cryptedUserId = encryptedUserId.split('.');
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const userId = parseInt(cryptoService.decrypt(cryptedKeyUserId));
 
@@ -25,8 +25,17 @@ export async function POST(req: NextRequest) {
 			[userId]
 		);
 
-		console.log('Query successful:', userFriends.rows);
-		return NextResponse.json(userFriends.rows, { status: 200 });
+		const friends = userFriends.rows.map((friend: any) => {
+			const encryptedUserId = cryptoService.encrypt(friend.user_id.toString());
+			const encryptedFriendId = cryptoService.encrypt(friend.friend_id.toString());
+			const stringEncryptedUserId = encryptedUserId.encryptedText + '.' + encryptedUserId.iv;
+			const stringEncryptedFriendId = encryptedFriendId.encryptedText + '.' + encryptedFriendId.iv;
+			console.log(typeof friend.user_id, typeof userId.toString());
+			return friend.user_id === userId ? stringEncryptedFriendId : stringEncryptedUserId;
+		});
+
+		console.log('Query successful:', friends);
+		return NextResponse.json(friends, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

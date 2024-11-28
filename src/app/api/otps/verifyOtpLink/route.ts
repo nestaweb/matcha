@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 		const cryptedKeyOtp = { encryptedText: cryptedOtp[0], iv: cryptedOtp[1] };
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const decryptedOtp = cryptoService.decrypt(cryptedKeyOtp);
 		const userId = parseInt(cryptoService.decrypt(cryptedKeyUserId));

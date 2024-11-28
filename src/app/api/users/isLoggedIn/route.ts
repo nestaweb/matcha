@@ -14,7 +14,7 @@ export async function GET() {
 		const userIdValue = userIdCookie.value;
 		const cryptedUserId = userIdValue.split('.');
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const userId = parseInt(cryptoService.decrypt({encryptedText: cryptedUserId[0], iv: cryptedUserId[1]}));
 

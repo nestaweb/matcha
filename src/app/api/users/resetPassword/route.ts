@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 		const cryptedEmail = encryptedEmail.split('.');
 		const cryptedKeyEmail = { encryptedText: cryptedEmail[0], iv: cryptedEmail[1] };
 
-		const cryptoService = new CryptoService(process.env.ENCRYPTION_KEY!);
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		const email = cryptoService.decrypt(cryptedKeyEmail);
 

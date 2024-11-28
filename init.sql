@@ -86,6 +86,26 @@ CREATE TABLE IF NOT EXISTS otps (
     deleted_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS chat_message (
+    id SERIAL PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    room_id INT NOT NULL,
+    message TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS chat_room (
+    id SERIAL PRIMARY KEY,
+    user1_id INT NOT NULL,
+    user2_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user1_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (user2_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('Nesta', 'Loisy', 'nesta.loisy@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 18, 'date', 'code', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User1', 'LastName2', 'l.2@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 28, 'date', 'code', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User2', 'LastName3', 'l.3@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'female', 'heterosexual', 25, 'date', 'bouldering,code', true);
@@ -101,5 +121,5 @@ INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientati
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User12', 'LastName13', 'l.13@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 19, 'date', '42', true);
 
 INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
-INSERT INTO user_friends (user_id, friend_id) VALUES (1, 3);
+INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
 INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
