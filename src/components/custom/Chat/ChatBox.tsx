@@ -37,14 +37,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 	const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 	useEffect(() => {
-		console.log(chatRoomId);
-	}, [chatRoomId]);
-
-	useEffect(() => {
-		console.log(messages);
-	}, [messages]);
-
-	useEffect(() => {
 		if (!userId || !receiverId) return;
 		fetch("/api/messages/getChatRoom", {
 			method: "POST",
@@ -64,7 +56,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 			socket.emit("joinRoom", chatRoomId);
 		
 			const handleReceiveMessage = (messageData: any) => {
-				console.log("Received message data:", messageData);
 				
 				if (!userId || !messageData.senderId || !messageData.receiverId) return;
 				if (userId === undefined || messageData.senderId === undefined || messageData.receiverId === undefined) return;
@@ -90,11 +81,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 
 			socket.on("receiveMessage", handleReceiveMessage);
 
-			console.log("Fetching previous messages ...");
-			console.log("Chat room ID:", chatRoomId);
-
 			const fetchPreviousMessages = async () => {
-				console.log("Fetching previous messages ...");
 				try {
 					const response = await fetch("/api/messages/getRoomMessages", {
 						method: "POST",
@@ -106,7 +93,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 		  
 					if (response.ok) {
 						const messages = await response.json();
-						console.log("Previous messages:", messages);
 						setMessages((prev) => {
 							const isDuplicate = prev.some((prevMsg) => messages.some((msg: any) => msg.id === prevMsg.id));
 							return isDuplicate ? prev : [...prev, ...messages.map((msg: any) => msg)];
@@ -212,8 +198,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 				console.error('Socket not connected');
 				return;
 			}
-
-			console.log("Sending message data:", messageData);
 		  		  
 			await fetch("/api/messages/sendMessage", {
 				method: "POST",
@@ -223,7 +207,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 			.then(async (response) => {
 				if (response.status === 200) {
 					const data = await response.json();
-					console.log('Message sent:', data);
 					messageData.id = data.id;
 					socket.emit("sendMessage", messageData);
 				}
