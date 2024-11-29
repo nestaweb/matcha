@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
 	}
 	try {
 		const { chatRoomId } = await req.json();
+		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 		console.log('chatRoomId:', chatRoomId);
 
@@ -29,7 +30,19 @@ export async function POST(req: NextRequest) {
 		);
 
 		console.log('Query successful:', chatInRoom.rows);
-		return NextResponse.json(chatInRoom.rows || [], { status: 200 });
+		const chatMessages = chatInRoom.rows.map((chat: any) => {
+			const cryptedSenderId = cryptoService.encrypt(chat.sender_id.toString());
+			const cryptedReceiverId = cryptoService.encrypt(chat.receiver_id.toString());
+			return {
+				id: chat.id,
+				senderId: `${cryptedSenderId.encryptedText}.${cryptedSenderId.iv}`,
+				receiverId: `${cryptedReceiverId.encryptedText}.${cryptedReceiverId.iv}`,
+				room_id: chat.room_id,
+				message: chat.message,
+				sentAt: chat.sent_at
+			}
+		});
+		return NextResponse.json(chatMessages || [], { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

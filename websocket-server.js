@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const http = require("http");
+const pool = require("./src/server/pool.js");
 
 const PORT = process.env.PORT || 4000;
 
@@ -26,7 +27,21 @@ io.on("connection", (socket) => {
     });
 
     io.to(messageData.room_id).emit("receiveMessage", messageData);
+    socket.to(messageData.room_id).emit("newMessage", messageData);
   });
+
+  socket.on("messageRead", async ({ chatRoomId, messageIds }) => {
+    try {
+        await pool.query(
+            `UPDATE chat_message SET is_read = TRUE WHERE id = ANY($1::int[]) AND room_id = $2`,
+            [messageIds, chatRoomId]
+        );
+
+        socket.to(chatRoomId).emit("messageRead", { messageIds });
+    } catch (error) {
+        console.error("Error updating message read status:", error);
+    }
+});
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/avatar";
 import { Input } from "@/ui/input";
 import { CryptoService } from '@/server/CryptoService';
+import { toast } from "sonner";
 
 interface ChatBoxProps {
 	userId: string;
@@ -18,15 +19,18 @@ interface ChatBoxProps {
 }
 
 interface IMessage {
+	id: number;
 	senderId: string;
 	receiverId: string;
 	room_id: string;
 	message: string;
 	sentAt: Date;
+	is_read: boolean;
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 	const socket = useSocket("http://localhost:4001");
+	// const socket = useSocket("https://outgoing-ghoul-open.ngrok-free.app");
 	const [messages, setMessages] = useState<IMessage[]>([]);
  	const [newMessage, setNewMessage] = useState("");
 	const [chatRoomId, setChatRoomId] = useState("");
@@ -35,6 +39,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 	useEffect(() => {
 		console.log(chatRoomId);
 	}, [chatRoomId]);
+
+	useEffect(() => {
+		console.log(messages);
+	}, [messages]);
 
 	useEffect(() => {
 		if (!userId || !receiverId) return;
@@ -72,7 +80,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 				const decryptedUserId = parseInt(cryptoService.decrypt(cryptedKeyUserId));
 
 				if (decryptedSenderId !== decryptedUserId && chatRoomId === messageData.room_id) {
-					setMessages((prev) => [...prev, messageData]);
+					setMessages((prev) => {
+						const isDuplicate = prev.some((msg) => msg.id === messageData.id);
+						return isDuplicate ? prev : [...prev, messageData];
+					});
+					setMessages((prev) => prev.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()));
 				}
 			};
 
@@ -82,6 +94,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 			console.log("Chat room ID:", chatRoomId);
 
 			const fetchPreviousMessages = async () => {
+				console.log("Fetching previous messages ...");
 				try {
 					const response = await fetch("/api/messages/getRoomMessages", {
 						method: "POST",
@@ -93,7 +106,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 		  
 					if (response.ok) {
 						const messages = await response.json();
-						setMessages(messages.map((msg: any) => msg));
+						console.log("Previous messages:", messages);
+						setMessages((prev) => {
+							const isDuplicate = prev.some((prevMsg) => messages.some((msg: any) => msg.id === prevMsg.id));
+							return isDuplicate ? prev : [...prev, ...messages.map((msg: any) => msg)];
+						});
+						setMessages((prev) => prev.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()));
 					}
 				} catch (error) {
 					console.error("Failed to fetch previous messages:", error);
@@ -106,7 +124,74 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 				socket.off("receiveMessage", handleReceiveMessage);
 			};
 		}
-	}, [socket, chatRoomId, userId, receiverId]);
+	}, [socket, chatRoomId, userId]);
+
+	useEffect(() => {
+		if (socket && chatRoomId) {
+			const handleReadReceipt = ({ messageIds }: { messageIds: number[] }) => {
+				setMessages((prevMessages) =>
+					prevMessages.map((msg) =>
+						messageIds.includes(msg.id) ? { ...msg, isRead: true } : msg
+					)
+				);
+				setMessages((prev) => prev.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()));
+			};
+	
+			socket.on("messageRead", handleReadReceipt);
+	
+			return () => {
+				socket.off("messageRead", handleReadReceipt);
+			};
+		}
+	}, [socket, chatRoomId]);
+
+	useEffect(() => {
+		if (socket && chatRoomId) {
+			const unreadMessageIds = messages
+				.filter((msg) => !msg.is_read)
+				.map((msg) => msg.id);
+	
+			if (unreadMessageIds.length > 0) {
+				socket.emit("messageRead", { chatRoomId, messageIds: unreadMessageIds });
+			}
+		}
+	}, [socket, chatRoomId]);
+
+	useEffect(() => {
+		if (socket && chatRoomId) {
+			const handleNewMessage = async (messageData: IMessage) => {
+				if (messageData.room_id !== chatRoomId) {
+					await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserFirstName`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({encryptedUserId: messageData.senderId}),
+					})
+					.then(async (response) => {
+				
+						if (response.status === 200) {
+							const data = await response.json();
+							const shortMessage = messageData.message.length > 30 ? `${messageData.message.slice(0, 30)}...` : messageData.message;
+							toast.message('New message from ' + data, {
+								description: shortMessage,
+							});
+						}
+					})
+				} else {
+					setMessages((prev) => {
+						const isDuplicate = prev.some((msg) => msg.id === messageData.id);
+						return isDuplicate ? prev : [...prev, messageData];
+					});
+					setMessages((prev) => prev.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()));
+				}
+			};
+	
+			socket.on("newMessage", handleNewMessage);
+	
+			return () => {
+				socket.off("newMessage", handleNewMessage);
+			};
+		}
+	}, [socket, chatRoomId]);
 
 	const sendMessage = async (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key !== "Enter" || !newMessage.trim()) return;
@@ -114,40 +199,46 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 
 		try {
 			const messageData = {
-			  senderId: userId,
-			  receiverId,
-			  room_id: chatRoomId,
-			  message: newMessage,
-			  sentAt: new Date(),
+				id: -1,
+				senderId: userId,
+				receiverId,
+				room_id: chatRoomId,
+				message: newMessage,
+				sentAt: new Date(),
+				is_read: false,
 			};
 		
 			if (!socket) {
-			  console.error('Socket not connected');
-			  return;
+				console.error('Socket not connected');
+				return;
 			}
 
 			console.log("Sending message data:", messageData);
-		  
-			socket.emit("sendMessage", messageData);
-		  
+		  		  
 			await fetch("/api/messages/sendMessage", {
-			  method: "POST",
-			  headers: { "Content-Type": "application/json" },
-			  body: JSON.stringify(messageData),
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(messageData),
 			})
 			.then(async (response) => {
 				if (response.status === 200) {
 					const data = await response.json();
 					console.log('Message sent:', data);
+					messageData.id = data.id;
+					socket.emit("sendMessage", messageData);
 				}
 			});
 		  
-			setMessages((prev) => [...prev, messageData]);
+			setMessages((prev) => {
+				const isDuplicate = prev.some((msg) => msg.id === messageData.id);
+				return isDuplicate ? prev : [...prev, messageData];
+			});
+			setMessages((prev) => prev.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()));
 			setNewMessage("");
+			
 		  } catch (error) {
 			console.error('Message sending failed:', error);
 		}
-
 	};
 
 	return (
@@ -178,7 +269,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 								<p>
 									{msg.message}
 								</p>
-								<p className="w-full flex justify-end text-sm text-primary/60">14:36</p>
+								<p className="w-full flex justify-end text-sm text-primary/60">{
+									new Date(msg.sentAt).toLocaleTimeString('fr-FR', {
+										hour: '2-digit',
+										minute: '2-digit',
+									})
+								}</p>
 							</div>
 						</div>
 						:
@@ -191,7 +287,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 								<p>
 									{msg.message}
 								</p>
-								<p className="w-full flex justify-end text-sm text-foreground/60">14:36</p>
+								<p className="w-full flex justify-end text-sm text-foreground/60">{
+									new Date(msg.sentAt).toLocaleTimeString('fr-FR', {
+										hour: '2-digit',
+										minute: '2-digit',
+									})
+								}
+								</p>
 							</div>
 						</div>
 					)

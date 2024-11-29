@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "42Matcha",
@@ -17,6 +18,7 @@ export default function RootLayout({
         className={`scroll-smooth`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/avatar";
 import { UserFriendsResponse, EnrichedFriendsResponse } from "@/types/user_friends";
 import ChatBox from "@/custom/Chat/ChatBox";
+import NavBar from '@/components/custom/NavBar/NavBar';
 
 const ChatHome: React.FC = () => {
 	const [userId, setUserId] = useState('');
@@ -77,6 +78,7 @@ const ChatHome: React.FC = () => {
 
 	return (
 		<Background variant='userProfile'>
+			<NavBar isLoggedIn={userId ? true : false} />
 			<div className="flex h-[80vh] max-h-[80vh] w-[80vw] max-w-[80vw] border-2 border-foreground/5 bg-[#f4f4f4bb] mx-auto my-[10vh] rounded-xl backdrop-blur overflow-hidden">
 				<div className="w-2/6 h-full border-r-2 p-8 py-6 bg-foreground/5 flex flex-col gap-8">
 					<div className="flex justify-between items-center">
