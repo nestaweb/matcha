@@ -45,8 +45,16 @@ export async function POST(req: NextRequest) {
 			[gridId]
 		);
 
+		const returnPairs = discoveredPairs.rows.map((pair: any) => {
+			const cryptedKeyUserId = cryptoService.encrypt(pair.associated_user_id.toString());
+			return {
+				...pair,
+				associated_user_id: cryptedKeyUserId.encryptedText + '.' + cryptedKeyUserId.iv
+			}
+		})
+
 		console.log('Query successful:', discoveredPairs.rows);
-		return NextResponse.json(discoveredPairs.rows, { status: 200 });
+		return NextResponse.json(returnPairs, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

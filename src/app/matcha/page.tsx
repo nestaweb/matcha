@@ -4,15 +4,19 @@ import GridBrowsing from "@/custom/Matcha/GridBrowsing";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface RandomUsers {
-	id: string,
-	fame: number
+interface Pair  {
+	associated_user_id: string,
+	cell1: number,
+	cell2: number,
+	discovered: boolean,
+	grid_id: number,
+	id: number
 }
 
 const Matcha: React.FC = () => {
 	const [userId, setUserId] = useState('');
-	const [nbUsers, setNbUsers] = useState(0);
-	const [randomUsers, setRandomUsers] = useState([] as RandomUsers[]);
+	const [gridId, setGridId] = useState(0);
+	const [pairs, setPairs] = useState<Pair[]>([]);
 	const router = useRouter();
 
 	if (!userId) {
@@ -34,59 +38,45 @@ const Matcha: React.FC = () => {
 	}
 
 	useEffect(() => {
-		if (nbUsers === 0) {
-			const nbUsersFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getNbUser`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-			.then((response) => response.json())
-			.then((data) => {
-				console.log('Success:', data);
-				if (parseInt(data.count) > 1 && parseInt(data.count) < 10) {
-					setNbUsers(parseInt(data.count));
-				}
-				else if (parseInt(data.count) >= 10) {
-					setNbUsers(10);
-				}
-				return data.count;
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				return 0;
-			});
-		}
-	}, [nbUsers]);
+		if (!userId) return;
+		const initGrid = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/initgrid`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setGridId(data);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	});
 
 	useEffect(() => {
-		if (nbUsers > 0 && randomUsers.length === 0) {
-			if (!userId || userId === undefined) {
-				console.error('Missing User ID');
-				return;
+		if (gridId === 0) return;
+		const getPairs = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/getPairs`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId, gridId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				setPairs(data);
 			}
-
-			const randomUsersFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getRandomUsers`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ encryptedUserId: userId, nbUsers })
-			})
-			.then((response) => response.json())
-			.then((data) => {
-				console.log('Success:', data);
-				setRandomUsers(data);
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-			});
-		}
-	});
+		})
+	}, [gridId]);
 
 	
 	return (
-		<GridBrowsing nbUsers={nbUsers} randomUsers={randomUsers} />
+		<GridBrowsing pairs={pairs} userId={userId} gridId={gridId} />
 	)
 }
 

@@ -8,131 +8,126 @@ import {
 } from "@/components/ui/avatar";
 import Link from "next/link";
 
-type Pair = [number, number];
+interface Pair  {
+	associated_user_id: string,
+	cell1: number,
+	cell2: number,
+	discovered: boolean,
+	grid_id: number,
+	id: number
+}
 
-interface RandomUsers {
-	id: string,
-	fame: number
+interface Cell {
+	id: number,
+    grid_id: number,
+    cell_index: number,
+    clicked_at: Date
 }
 
 interface GridBrowsingProps {
-	nbUsers: number;
-	randomUsers: RandomUsers[];
+	pairs: Pair[];
+	userId: string;
+	gridId: number;
 }
 
-const GridBrowsing: React.FC<GridBrowsingProps> = ({ nbUsers, randomUsers }) => {
-	const [pairs, setPairs] = useState<Pair[]>([]);
-  	const [clickedCells, setClickedCells] = useState<Set<number>>(new Set());
-	const [completedPairs, setCompletedPairs] = useState<Set<Pair>>(new Set());
-	const [pairUserMap, setPairUserMap] = useState<Map<Pair, RandomUsers>>(new Map());
-
-	const generateRandomPairs = (
-		rows: number,
-		cols: number,
-		count: number
-	  ): Pair[] => {
-		const pairs: Pair[] = [];
-		const totalCells = rows * cols;
-	
-		const isAdjacent = (a: number, b: number): boolean => {
-			const rowA = Math.floor(a / cols);
-			const colA = a % cols;
-			const rowB = Math.floor(b / cols);
-			const colB = b % cols;
-		
-			return Math.abs(rowA - rowB) <= 1 && Math.abs(colA - colB) <= 1;
-		};
-	
-		const conflictsWithExistingPairs = (pair: Pair): boolean =>
-			pairs.some(([p1, p2]) =>
-				[p1, p2].some(
-					(cell) => isAdjacent(cell, pair[0]) || isAdjacent(cell, pair[1])
-				)
-			);
-	
-		while (pairs.length < count) {
-			const randomIndex = Math.floor(Math.random() * totalCells);
-		
-			const horizontal = Math.random() > 0.5;
-			let pair: Pair | null = null;
-		
-			if (horizontal && (randomIndex % cols) < cols - 1) {
-				pair = [randomIndex, randomIndex + 1];
-			} else if (!horizontal && randomIndex + cols < totalCells) {
-				pair = [randomIndex, randomIndex + cols];
-			}
-		
-			if (
-				pair &&
-				!conflictsWithExistingPairs(pair) &&
-				!pairs.some(([a, b]) => (a === pair[0] && b === pair[1]))
-			) {
-				pairs.push(pair);
-			}
-		}
-	
-		return pairs;
-	};
+const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) => {
+	const [completedPairs, setCompletedPairs] = useState<Pair[]>([]);
+	const [clickedCells, setClickedCells] = useState<Set<number>>(new Set());
 
 	useEffect(() => {
-		const newPairs = generateRandomPairs(8, 12, 10);
+		const fetchCompletedPairs = async () => {
+			if (!userId || !gridId) return;
+			try {
+				const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/getDiscoveredPairs`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ encryptedUserId: userId, gridId }),
+				});
+				if (response.status === 200) {
+					const data: Pair[] = await response.json();
+					setCompletedPairs(data);
+				}
+			} catch (error) {
+				console.error("Error fetching completed pairs:", error);
+			}
+		};
+		fetchCompletedPairs();
+	}, [userId, gridId]);
 
-		const userMap = new Map<Pair, RandomUsers>();
-		newPairs.forEach((pair, index) => {
-			const user = randomUsers[index % randomUsers.length]; // Rotate through users if pairs > randomUsers
-			userMap.set(pair, user);
-		});
-
-		setPairs(newPairs);
-		setPairUserMap(userMap);
-		console.log('userMap as Array:', Array.from(userMap.entries()));
-	}, [randomUsers]);
+	useEffect(() => {
+		const fetchClickedCells = async () => {
+			if (!userId || !gridId) return;
+			try {
+				const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/getClickedCells`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ encryptedUserId: userId, gridId }),
+				});
+				if (response.status === 200) {
+					const data: Cell[] = await response.json();
+					setClickedCells(new Set(data.map((cell) => cell.cell_index)));
+				}
+			} catch (error) {
+				console.error("Error fetching clicked cells:", error);
+			}
+		};
+		fetchClickedCells();
+	}, [userId, gridId]);
 
 
 	const handleClick = (index: number) => {
+		const clickCell = async () => {
+			try {
+				const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/setClickedCell`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ encryptedUserId: userId, gridId, cellId: index }),
+				});
+				if (response.status === 200) {
+					const data: Cell = await response.json();
+					console.log('Clicked cell:', data);
+				}
+			} catch (error) {
+				console.error("Error clicking cell:", error);
+			}
+		}
 		setClickedCells((prev) => {
 			const newSet = new Set(prev);
+			if (newSet.has(index)) return newSet;
 			newSet.add(index);
 
-			const completedPairsArray = [...completedPairs];
-			let clickedPairs = false;
-			completedPairsArray.forEach(([a, b]) => {
-				if (newSet.has(a) && newSet.has(b) && (index === a || index === b)) {
-					clickedPairs = true;
+			const isPairCompleted = pairs.some(
+				(pair) => (pair.cell1 === index || pair.cell2 === index)
+			);
+
+			if (isPairCompleted) {
+				const newCompletedPair = pairs.find(
+					(pair) => (pair.cell1 === index || pair.cell2 === index)
+				);
+				if (newCompletedPair && !completedPairs.some((pair) => pair.id === newCompletedPair.id)) {
+					setCompletedPairs((prevPairs) => [...prevPairs, newCompletedPair]);
+					newSet.add(newCompletedPair.cell1 === index ? newCompletedPair.cell2 : newCompletedPair.cell1);
 				}
-			})
-		
-			pairs.forEach(([a, b]) => {
-				if (newSet.has(a) && newSet.has(b) && !clickedPairs && (index === a || index === b)) {
-					setCompletedPairs((prev) => {
-						const newSet = new Set(prev);
-						newSet.add([a, b]);
-						return newSet;
-					});
-				}
-			});
-	
-		  return newSet;
+			}
+			return newSet;
 		});
+		clickCell();
 	};
 
-	function openProfile(id: string) {
-		const openProfileFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/openProfile`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ id })
-		})
-		.then(response => {
+	const openProfile = async (id: string) => {
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/openProfile`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id }),
+			});
 			if (response.redirected) {
-			  window.location.href = response.url;
+				window.location.href = response.url;
 			}
-		})
-		.catch((error) => {
-			console.error('Error:', error);
-		});
-	}
+		} catch (error) {
+			console.error('Error opening profile:', error);
+		}
+	};
 
 	return (
 		<>
@@ -143,14 +138,43 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ nbUsers, randomUsers }) => 
 					</div>
 				</Link>
 				<div className="bg-foreground/90 rounded-3xl px-6 py-2 text-primary">
-					<p className="">{completedPairs.size} <span className="text-primary/80">/ 10 discovered</span></p>
+					<p className="">{completedPairs.length} <span className="text-primary/80">/ 10 discovered</span></p>
 				</div>
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
 					<Settings2 />
 				</div>
 			</div>
 			<div className="w-[80vw] h-[80vh] grid grid-cols-12 grid-rows-8 mx-auto mt-[5vh] border-2 border-foreground/10">
-				{
+				{[...Array(96)].map((_, i) => {
+					const pair = pairs.find((p) => p.cell1 === i || p.cell2 === i);
+					const isClicked = clickedCells.has(i);
+					const isCompleted = pair && completedPairs.some((cp) => cp.id === pair.id);
+					return (
+						<div
+							key={i}
+							className={`transition duration-200 ease-linear border flex items-center justify-center cursor-pointer ${
+								isCompleted ? 'bg-foreground/90 text-primary border-transparent text-center' : 'bg-primary text-foreground/50'
+							}`}
+							onClick={() => handleClick(i)}
+						>
+							{isClicked && !isCompleted && <X />}
+							{isCompleted && pair && pair.cell2 === i && (
+								<div onClick={() => openProfile(pair.associated_user_id)}>
+								<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-primary/10 flex items-center justify-center p-2 rounded-2xl">
+									<Eye size={30} />
+								</div>
+							</div>
+							)}
+							{isCompleted && pair && pair.cell1 === i && (
+								<Avatar className="w-2/3 h-auto">
+									<AvatarImage src="https://images.freeimages.com/images/large-previews/971/basic-shape-avatar-1632968.jpg?fmt=webp&h=350" alt="@shadcn" />
+									<AvatarFallback>CN</AvatarFallback>
+								</Avatar>
+							)}
+						</div>
+					);
+				})}
+				{/* {
 					[...Array(96)].map((_, i) => {
 						const pairWithText = [...completedPairs].find(([a, b]) => a === i || b === i);
 						const findUserByPair = (pair: Pair | undefined): RandomUsers | null => {
@@ -192,7 +216,7 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ nbUsers, randomUsers }) => 
 							</div>
 						);
 					})
-				}
+				} */}
 			</div>
 		</>
 	)
