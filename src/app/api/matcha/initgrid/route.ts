@@ -55,6 +55,41 @@ export async function POST(req: NextRequest) {
 		const nbResult = await pool.query('SELECT COUNT(*) FROM users WHERE id != $1', [userId]);
 		const nbUsers = parseInt(nbResult.rows[0].count) > 0 && parseInt(nbResult.rows[0].count) < 10 ? parseInt(nbResult.rows[0].count) : 10;
 
+		const calculateDistanceSQL = `
+			( 6371 * acos(
+				cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
+				cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
+				sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
+			))
+		`;
+
+		const searchRadius = 50;
+		
+		const locationParts = user.rows[0].location.split(',');
+		if (locationParts.length !== 2) {
+			throw new Error('Invalid location format');
+		}
+		
+		const userLongitude = parseFloat(locationParts[0]);
+		const userLatitude = parseFloat(locationParts[1]);
+
+		const ageRange = 10;
+		const userAgeResult = await pool.query(
+			`
+			SELECT age
+			FROM users
+			WHERE id = $1
+			`,
+			[userId]
+		);
+
+
+		if (!userAgeResult.rows.length || !userAgeResult.rows[0].age) {
+			throw new Error('User age not found');
+		}
+
+		const userAge = userAgeResult.rows[0].age;
+
 		let randomUsersFetched = false;
 		let nbUsersNeeded = nbUsers;
 		let users: any[] = [];
@@ -76,14 +111,26 @@ export async function POST(req: NextRequest) {
 
 			const randomUsers = await pool.query(
 				`
-				SELECT id, firstname, fame 
-				FROM users 
-				WHERE id != $1 
+				SELECT id, firstname, fame, location, age,
+				( 6371 * acos(
+					cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
+					cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
+					sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
+				)) AS distance
+				FROM users
+				WHERE id != $1
+				AND location IS NOT NULL
+				AND ( 6371 * acos(
+					cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
+					cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
+					sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
+				)) <= $5
+				AND (age BETWEEN $6 AND $7)
 				${alreadySelectedIds ? `AND id NOT IN (${alreadySelectedIds.join(',')})` : ''} 
-				ORDER BY RANDOM() 
+				ORDER BY distance ASC, fame DESC, RANDOM()
 				LIMIT $2
 				`,
-				[userId, nbUsersNeeded]
+				[userId, nbUsersNeeded, userLatitude, userLongitude, searchRadius, userAge - ageRange, userAge + ageRange]
 			);
 
 			if (randomUsers.rows.length === 0) {
@@ -100,6 +147,28 @@ export async function POST(req: NextRequest) {
 				likedProfilesMap.set(row.liked_user_id, row.user_id);
 			});
 
+			console.log('profiles liked', likedProfiles.rows);
+
+			randomUsers.rows = randomUsers.rows.filter((user: any) => {
+				return !likedProfilesMap.has(user.id);
+			});
+
+			const friendsProfiles = await pool.query(
+				'SELECT * FROM user_friends WHERE user_id = $1 OR friend_id = $1',
+				[userId]
+			)
+
+			const friendsProfilesMap = new Map<number, number>();
+			friendsProfiles.rows.forEach((row: any) => {
+				friendsProfilesMap.set(row.friend_id, row.user_id)
+				friendsProfilesMap.set(row.user_id, row.friend_id)
+			})
+
+			randomUsers.rows = randomUsers.rows.filter((user: any) => {
+				return !friendsProfilesMap.has(user.id);
+			})
+
+
 			const blockedProfiles = await pool.query(
 				'SELECT * FROM profile_blocked WHERE user_id = $1',
 				[userId]
@@ -108,6 +177,7 @@ export async function POST(req: NextRequest) {
 			const blockedProfilesMap = new Map<number, number>();
 			blockedProfiles.rows.forEach((row: any) => {
 				blockedProfilesMap.set(row.blocked_user_id, row.user_id);
+				blockedProfilesMap.set(row.user_id, row.blocked_user_id);
 			});
 
 			randomUsers.rows = randomUsers.rows.filter((user: any) => {
@@ -132,6 +202,7 @@ export async function POST(req: NextRequest) {
 					id: `${cryptedUserId.encryptedText}.${cryptedUserId.iv}`,
 					firstName: user.firstname,
 					fame: user.fame,
+					distance: user.distance.toFixed(2)
 				}
 			})
 
