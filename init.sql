@@ -107,6 +107,33 @@ CREATE TABLE IF NOT EXISTS chat_room (
     FOREIGN KEY (user2_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS matcha_grid (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    finished BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS matcha_pairs (
+    id SERIAL PRIMARY KEY,
+    grid_id INT NOT NULL,
+    cell1 INT NOT NULL,
+    cell2 INT NOT NULL,
+    associated_user_id INT NOT NULL,
+    discovered BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (grid_id) REFERENCES matcha_grid (id) ON DELETE CASCADE,
+    FOREIGN KEY (associated_user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS matcha_clicked_cells (
+    id SERIAL PRIMARY KEY,
+    grid_id INT NOT NULL,
+    cell_index INT NOT NULL,
+    clicked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (grid_id) REFERENCES matcha_grid (id) ON DELETE CASCADE
+);
+
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('Nesta', 'Loisy', 'nesta.loisy@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 18, 'date', 'code', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User1', 'LastName2', 'l.2@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 28, 'date', 'code', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User2', 'LastName3', 'l.3@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'female', 'heterosexual', 25, 'date', 'bouldering,code', true);
@@ -125,3 +152,10 @@ INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
 INSERT INTO user_friends (user_id, friend_id) VALUES (2, 3);
 INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
 INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
+
+INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (11, 1);
+-- INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (12, 1);
+-- INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (1, 13);
+INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (10, 1);
+INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (1, 9);
+INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (1, 8);

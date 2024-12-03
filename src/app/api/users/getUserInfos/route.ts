@@ -41,16 +41,13 @@ export async function POST(req: NextRequest) {
 		if (userFriends.status === 200) {
 			const data = await userFriends.json();
 			friends = data.map((friend: any) => {
-				if (friend.user_id === userId) {
-					return friend.friend_id;
-				}
-				return friend.user_id;
+				return friend;
 			});
 		}
 
-		console.log('Query successful:', friends);
+		console.log('Query successful friends:', friends);
 
-		console.log('Query successful:', user.rows);
+		console.log('Query successful user:', user.rows);
 		const userInfos = {
 			firstName: user.rows[0].firstname,
 			lastName: user.rows[0].lastname,

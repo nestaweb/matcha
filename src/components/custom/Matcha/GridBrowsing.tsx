@@ -10,10 +10,21 @@ import Link from "next/link";
 
 type Pair = [number, number];
 
-const GridBrowsing: React.FC = () => {
+interface RandomUsers {
+	id: string,
+	fame: number
+}
+
+interface GridBrowsingProps {
+	nbUsers: number;
+	randomUsers: RandomUsers[];
+}
+
+const GridBrowsing: React.FC<GridBrowsingProps> = ({ nbUsers, randomUsers }) => {
 	const [pairs, setPairs] = useState<Pair[]>([]);
   	const [clickedCells, setClickedCells] = useState<Set<number>>(new Set());
 	const [completedPairs, setCompletedPairs] = useState<Set<Pair>>(new Set());
+	const [pairUserMap, setPairUserMap] = useState<Map<Pair, RandomUsers>>(new Map());
 
 	const generateRandomPairs = (
 		rows: number,
@@ -65,8 +76,17 @@ const GridBrowsing: React.FC = () => {
 
 	useEffect(() => {
 		const newPairs = generateRandomPairs(8, 12, 10);
+
+		const userMap = new Map<Pair, RandomUsers>();
+		newPairs.forEach((pair, index) => {
+			const user = randomUsers[index % randomUsers.length]; // Rotate through users if pairs > randomUsers
+			userMap.set(pair, user);
+		});
+
 		setPairs(newPairs);
-	}, []);
+		setPairUserMap(userMap);
+		console.log('userMap as Array:', Array.from(userMap.entries()));
+	}, [randomUsers]);
 
 
 	const handleClick = (index: number) => {
@@ -96,6 +116,24 @@ const GridBrowsing: React.FC = () => {
 		});
 	};
 
+	function openProfile(id: string) {
+		const openProfileFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/openProfile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id })
+		})
+		.then(response => {
+			if (response.redirected) {
+			  window.location.href = response.url;
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
 	return (
 		<>
 			<div className="w-[80vw] mx-auto flex items-center justify-between mt-[5vh]">
@@ -115,6 +153,18 @@ const GridBrowsing: React.FC = () => {
 				{
 					[...Array(96)].map((_, i) => {
 						const pairWithText = [...completedPairs].find(([a, b]) => a === i || b === i);
+						const findUserByPair = (pair: Pair | undefined): RandomUsers | null => {
+							if (!pair) return null;
+							for (const [key, user] of pairUserMap.entries()) {
+								if (key[0] === pair[0] && key[1] === pair[1]) {
+									return user;
+								}
+							}
+							return null;
+						};
+						
+						const user = findUserByPair(pairWithText);
+						const userId = user ? user.id : "";
 						const text = pairWithText
 						? pairWithText[0] === i
 							? 
@@ -123,11 +173,11 @@ const GridBrowsing: React.FC = () => {
 								<AvatarFallback>CN</AvatarFallback>
 							</Avatar>
 							:
-							<Link href="/user/8723323">
+							<div onClick={() => openProfile(userId)}>
 								<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-primary/10 flex items-center justify-center p-2 rounded-2xl">
 									<Eye size={30} />
 								</div>
-							</Link>
+							</div>
 						: "";
 						return (
 							<div 

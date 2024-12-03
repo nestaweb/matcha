@@ -14,6 +14,4 @@ RUN pnpm build
 
 EXPOSE 3000
 
-RUN pnpm add concurrently
-
 CMD ["pnpm", "concurrently", "\"node websocket-server.js\"", "\"pnpm start\""]
