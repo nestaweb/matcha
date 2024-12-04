@@ -80,18 +80,21 @@ export async function POST(req: NextRequest) {
 		let genderCondition = '';
 		if (gender === 'male') {
 			if (sexualorientation === 'heterosexual') {
-				genderCondition = "AND gender = 'female' AND sexualOrientation != 'homosexual'";
+				genderCondition = "AND u.gender = 'female' AND u.sexualOrientation != 'homosexual'";
 			} else if (sexualorientation === 'homosexual') {
-				genderCondition = "AND gender = 'male' AND sexualOrientation != 'heterosexual'";
+				genderCondition = "AND u.gender = 'male' AND u.sexualOrientation != 'heterosexual'";
 			}
 		} else if (gender === 'female') {
 			if (sexualorientation === 'heterosexual') {
-				genderCondition = "AND gender = 'male' AND sexualOrientation != 'homosexual'";
+				genderCondition = "AND u.gender = 'male' AND u.sexualOrientation != 'homosexual'";
 			} else if (sexualorientation === 'homosexual') {
-				genderCondition = "AND gender = 'female' AND sexualOrientation != 'heterosexual'";
+				genderCondition = "AND u.gender = 'female' AND u.sexualOrientation != 'heterosexual'";
 			}
 		}
 
+		const userTags = user.rows[0].tags.split(',');
+
+		const userTagsArray = userTags.map((tag: any) => `'${tag.trim()}'`).join(',');
 
 		let randomUsersFetched = false;
 		let nbUsersNeeded = nbUsers;
@@ -114,28 +117,36 @@ export async function POST(req: NextRequest) {
 
 			const randomUsers = await pool.query(
 				`
-				SELECT id, firstname, fame, location, sexualOrientation, gender,
-				ST_Distance(
-					ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
-								CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
-					ST_MakePoint($4, $3)::geography
-				) / 1000 AS distance
-				FROM users
-				WHERE id != $1
-				AND location IS NOT NULL
-				AND ST_DWithin(
-					ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
-								CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
-					ST_MakePoint($4, $3)::geography,
-					$5 * 1000
-				)
-				AND (age BETWEEN $6 AND $7)
-				${genderCondition}
-				${alreadySelectedIds ? `AND id NOT IN (${alreadySelectedIds.join(',')})` : ''} 
-				ORDER BY distance ASC, fame DESC, RANDOM()
-				LIMIT $2
+					SELECT id, firstname, fame, location, age, distance, common_tag_count
+					FROM (
+						SELECT u.id, u.firstname, u.fame, u.location, u.age,
+						ST_Distance(
+							ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
+										CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
+							ST_MakePoint($4, $3)::geography
+						) / 1000 AS distance,
+						(
+							SELECT COUNT(*) 
+							FROM unnest(string_to_array(u.tags, ',')) AS user_tag
+							WHERE user_tag = ANY($8::text[])
+						) AS common_tag_count
+						FROM users u
+						WHERE u.id != $1
+						AND u.location IS NOT NULL
+						AND ST_DWithin(
+							ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
+										CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
+							ST_MakePoint($4, $3)::geography,
+							$5 * 1000
+						)
+						AND (u.age BETWEEN $6 AND $7)
+						${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
+						${genderCondition}
+					) AS matched_users
+					ORDER BY common_tag_count DESC, distance ASC, fame DESC
+					LIMIT $2
 				`,
-				[userId, nbUsersNeeded, userLatitude, userLongitude, searchRadius, userAge - ageRange, userAge + ageRange]
+				[userId, nbUsersNeeded, userLatitude, userLongitude, searchRadius, userAge - ageRange, userAge + ageRange, userTags]
 			);
 
 			if (randomUsers.rows.length === 0) {
