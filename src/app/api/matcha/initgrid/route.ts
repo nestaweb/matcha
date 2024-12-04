@@ -120,19 +120,20 @@ export async function POST(req: NextRequest) {
 			const randomUsers = await pool.query(
 				`
 				SELECT id, firstname, fame, location, age,
-				( 6371 * acos(
-					cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
-					cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
-					sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
-				)) AS distance
+				ST_Distance(
+					ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
+								CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
+					ST_MakePoint($4, $3)::geography
+				) / 1000 AS distance
 				FROM users
 				WHERE id != $1
 				AND location IS NOT NULL
-				AND ( 6371 * acos(
-					cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
-					cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
-					sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
-				)) <= $5
+				AND ST_DWithin(
+					ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
+								CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
+					ST_MakePoint($4, $3)::geography,
+					$5 * 1000
+				)
 				AND (age BETWEEN $6 AND $7)
 				${alreadySelectedIds ? `AND id NOT IN (${alreadySelectedIds.join(',')})` : ''} 
 				ORDER BY distance ASC, fame DESC, RANDOM()
@@ -155,7 +156,6 @@ export async function POST(req: NextRequest) {
 				likedProfilesMap.set(row.liked_user_id, row.user_id);
 			});
 
-			console.log('profiles liked', likedProfiles.rows);
 
 			randomUsers.rows = randomUsers.rows.filter((user: any) => {
 				return !likedProfilesMap.has(user.id);

@@ -94,7 +94,7 @@ const Matcha: React.FC = () => {
 						id="airplane-mode"
 						onCheckedChange={() => setMode(mode === 'grid' ? 'advanced' : 'grid')}
 					/>
-      				<Label htmlFor="airplane-mode">Grid Mode</Label>
+      				<Label htmlFor="airplane-mode">Advanced Mode</Label>
 				</div>
 			</div>
 			{
