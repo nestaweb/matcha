@@ -63,14 +63,6 @@ export async function POST(req: NextRequest) {
 		const nbResult = await pool.query('SELECT COUNT(*) FROM users WHERE id != $1', [userId]);
 		const nbUsers = parseInt(nbResult.rows[0].count) > 0 && parseInt(nbResult.rows[0].count) < 10 ? parseInt(nbResult.rows[0].count) : 10;
 
-		const calculateDistanceSQL = `
-			( 6371 * acos(
-				cos(radians($3)) * cos(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT))) * 
-				cos(radians(CAST(SPLIT_PART(location, ',', 1) AS FLOAT)) - radians($4)) + 
-				sin(radians($3)) * sin(radians(CAST(SPLIT_PART(location, ',', 2) AS FLOAT)))
-			))
-		`;
-
 		const searchRadius = 50;
 		
 		const locationParts = user.rows[0].location.split(',');
