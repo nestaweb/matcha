@@ -74,21 +74,24 @@ export async function POST(req: NextRequest) {
 		const userLatitude = parseFloat(locationParts[1]);
 
 		const ageRange = 10;
-		const userAgeResult = await pool.query(
-			`
-			SELECT age
-			FROM users
-			WHERE id = $1
-			`,
-			[userId]
-		);
+		const userAge = user.rows[0].age;
+		const { gender, sexualorientation } = user.rows[0];
 
-
-		if (!userAgeResult.rows.length || !userAgeResult.rows[0].age) {
-			throw new Error('User age not found');
+		let genderCondition = '';
+		if (gender === 'male') {
+			if (sexualorientation === 'heterosexual') {
+				genderCondition = "AND gender = 'female' AND sexualOrientation != 'homosexual'";
+			} else if (sexualorientation === 'homosexual') {
+				genderCondition = "AND gender = 'male' AND sexualOrientation != 'heterosexual'";
+			}
+		} else if (gender === 'female') {
+			if (sexualorientation === 'heterosexual') {
+				genderCondition = "AND gender = 'male' AND sexualOrientation != 'homosexual'";
+			} else if (sexualorientation === 'homosexual') {
+				genderCondition = "AND gender = 'female' AND sexualOrientation != 'heterosexual'";
+			}
 		}
 
-		const userAge = userAgeResult.rows[0].age;
 
 		let randomUsersFetched = false;
 		let nbUsersNeeded = nbUsers;
@@ -111,7 +114,7 @@ export async function POST(req: NextRequest) {
 
 			const randomUsers = await pool.query(
 				`
-				SELECT id, firstname, fame, location, age,
+				SELECT id, firstname, fame, location, sexualOrientation, gender,
 				ST_Distance(
 					ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
 								CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
@@ -127,6 +130,7 @@ export async function POST(req: NextRequest) {
 					$5 * 1000
 				)
 				AND (age BETWEEN $6 AND $7)
+				${genderCondition}
 				${alreadySelectedIds ? `AND id NOT IN (${alreadySelectedIds.join(',')})` : ''} 
 				ORDER BY distance ASC, fame DESC, RANDOM()
 				LIMIT $2
