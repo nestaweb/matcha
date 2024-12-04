@@ -43,7 +43,6 @@ export async function GET() {
 			return NextResponse.json({ error: 'User is not verified' }, { status: 401 });
 		}
 
-		console.log('Query successful:', user.rows);
 		return NextResponse.json(userIdValue, { status: 200 });
   	}
 	catch (error: any) {
