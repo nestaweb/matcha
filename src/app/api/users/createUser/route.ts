@@ -101,6 +101,14 @@ export async function POST(req: NextRequest) {
 			html: emailHtml
 		})
 
+		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: encryptedUserId.encryptedText + '.' + encryptedUserId.iv })
+		});
+
 		console.log('Email sent:', message);
 		const encryptedParamUserId = encryptedUserId.encryptedText + '.' + encryptedUserId.iv;
 		return NextResponse.json(encryptedParamUserId, { status: 200 });

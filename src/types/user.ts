@@ -13,4 +13,5 @@ export interface UserResponse {
 	friends: string;
 	locationAccess: boolean;
 	city: string;
+	fame: number;
 }

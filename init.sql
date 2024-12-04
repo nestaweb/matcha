@@ -149,9 +149,9 @@ INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientati
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified) VALUES ('User12', 'LastName13', 'l.13@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 19, 'date', '42', true);
 
 INSERT INTO user_friends (user_id, friend_id) VALUES (2, 3);
-INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
-INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
-INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
 
 INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (11, 1);
 -- INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (12, 1);

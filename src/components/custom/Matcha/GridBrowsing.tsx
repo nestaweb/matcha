@@ -1,12 +1,11 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import { X, Eye, Settings2, MessageCircle } from "lucide-react";
+import { X, Eye, RotateCcw, Beef } from "lucide-react";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
-} from "@/components/ui/avatar";
-import Link from "next/link";
+} from "@/ui/avatar";
 
 interface Pair  {
 	associated_user_id: string,
@@ -131,20 +130,18 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) =>
 
 	return (
 		<>
-			<div className="w-[80vw] mx-auto flex items-center justify-between mt-[5vh]">
-				<Link href="/chat">
-					<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-						<MessageCircle />
-					</div>
-				</Link>
+			<div className="w-[80vw] mx-auto flex items-center justify-center mt-[2.5vh] gap-4">
+				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
+					<RotateCcw />
+				</div>
 				<div className="bg-foreground/90 rounded-3xl px-6 py-2 text-primary">
 					<p className="">{completedPairs.length} <span className="text-primary/80">/ {pairs.length} discovered</span></p>
 				</div>
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-					<Settings2 />
+					<Beef />
 				</div>
 			</div>
-			<div className="w-[80vw] h-[80vh] grid grid-cols-12 grid-rows-8 mx-auto mt-[5vh] border-2 border-foreground/10">
+			<div className="w-[80vw] h-[80vh] grid grid-cols-12 grid-rows-8 mx-auto mt-[2vh] border-2 border-foreground/10">
 				{[...Array(96)].map((_, i) => {
 					const pair = pairs.find((p) => p.cell1 === i || p.cell2 === i);
 					const isClicked = clickedCells.has(i);
@@ -174,49 +171,6 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) =>
 						</div>
 					);
 				})}
-				{/* {
-					[...Array(96)].map((_, i) => {
-						const pairWithText = [...completedPairs].find(([a, b]) => a === i || b === i);
-						const findUserByPair = (pair: Pair | undefined): RandomUsers | null => {
-							if (!pair) return null;
-							for (const [key, user] of pairUserMap.entries()) {
-								if (key[0] === pair[0] && key[1] === pair[1]) {
-									return user;
-								}
-							}
-							return null;
-						};
-						
-						const user = findUserByPair(pairWithText);
-						const userId = user ? user.id : "";
-						const text = pairWithText
-						? pairWithText[0] === i
-							? 
-							<Avatar className="w-2/3 h-auto">
-								<AvatarImage src="https://images.freeimages.com/images/large-previews/971/basic-shape-avatar-1632968.jpg?fmt=webp&h=350" alt="@shadcn" />
-								<AvatarFallback>CN</AvatarFallback>
-							</Avatar>
-							:
-							<div onClick={() => openProfile(userId)}>
-								<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-primary/10 flex items-center justify-center p-2 rounded-2xl">
-									<Eye size={30} />
-								</div>
-							</div>
-						: "";
-						return (
-							<div 
-								key={i} 
-								className={`transition duration-200 ease-linear border flex items-center justify-center cursor-pointer ${
-									clickedCells.has(i) && pairs.some(([a, b]) => a === i || b === i) ? 'bg-foreground/90 text-primary border-transparent text-center' : 'bg-primary text-foreground/50'
-								}`}
-								onClick={() => handleClick(i)}
-							>
-								{clickedCells.has(i) && !pairs.some(([a, b]) => a === i || b === i) && <X />}
-								{text}
-							</div>
-						);
-					})
-				} */}
 			</div>
 		</>
 	)

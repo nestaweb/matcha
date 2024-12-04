@@ -9,8 +9,6 @@ export async function POST(req: NextRequest) {
 	try {
 		const { id } = await req.json();
 
-		console.log('ID:', id);
-
 		if (!id || id === undefined) {
 			console.log('Missing ID');
 			return NextResponse.json({ error: 'Missing ID' }, { status: 400 });

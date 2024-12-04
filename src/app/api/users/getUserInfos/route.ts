@@ -47,6 +47,14 @@ export async function POST(req: NextRequest) {
 
 		console.log('Query successful friends:', friends);
 
+		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId })
+		});
+
 		console.log('Query successful user:', user.rows);
 		const userInfos = {
 			firstName: user.rows[0].firstname,
@@ -62,7 +70,8 @@ export async function POST(req: NextRequest) {
 			location: user.rows[0].location,
 			friends: friends,
 			locationAccess: user.rows[0].locationaccess,
-			city: user.rows[0].city
+			city: user.rows[0].city,
+			fame: user.rows[0].fame
 		}
 		return NextResponse.json(userInfos, { status: 200 });
   	}

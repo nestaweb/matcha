@@ -29,6 +29,15 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
+		const modifiedUser = await pool.query(
+			'UPDATE users SET lastseen = NOW() WHERE id = $1 RETURNING *',
+			[userId]
+		);
+
+		if (modifiedUser.rows.length === 0) {
+			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+		}
+
 		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
 			method: 'POST',
 			headers: {
@@ -38,7 +47,7 @@ export async function POST(req: NextRequest) {
 		});
 
 		console.log('Query successful:', user.rows);
-		return NextResponse.json(user.rows[0].tags, { status: 200 });
+		return NextResponse.json(modifiedUser.rows[0].lastseen, { status: 200 });
   	}
 	catch (error: any) {
 		console.error('Database connection error:', error);

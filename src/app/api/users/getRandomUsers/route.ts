@@ -9,6 +9,14 @@ export async function POST(req: NextRequest) {
 	try {
 		const { encryptedUserId, nbUsers } = await req.json();
 
+		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId })
+		});
+
 		const cryptedUserId = encryptedUserId.split('.');
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
 

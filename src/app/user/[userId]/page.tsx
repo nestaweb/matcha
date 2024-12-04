@@ -93,6 +93,17 @@ const ViewUser: React.FC = () => {
 	}, [userId, myUserId, isLiked]);
 
 	useEffect(() => {
+		if (!userId || !myUserId) return;
+		const setVisitedProdile = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setProfileView`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: myUserId, visitedProfileId: userId })
+		})
+	}, [userId, myUserId]);
+
+	useEffect(() => {
 		friends.forEach((friend: any) => {
 			if (!myUserId.includes('.')) {
 				console.error('Invalid ID');

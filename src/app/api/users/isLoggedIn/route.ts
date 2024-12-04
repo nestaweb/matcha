@@ -31,6 +31,14 @@ export async function GET() {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
+		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userIdValue })
+		});
+
 		if (user.rows[0].verified === false) {
 			return NextResponse.json({ error: 'User is not verified' }, { status: 401 });
 		}

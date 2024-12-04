@@ -1,8 +1,13 @@
 'use client';
 import GridBrowsing from "@/custom/Matcha/GridBrowsing";
+import AdvancedSearch from "@/custom/Matcha/AdvancedSearch";
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import { Switch } from "@/ui/switch"
+import { Label } from "@/ui/label"
+import { MessageCircle } from "lucide-react";
 
 interface Pair  {
 	associated_user_id: string,
@@ -17,6 +22,7 @@ const Matcha: React.FC = () => {
 	const [userId, setUserId] = useState('');
 	const [gridId, setGridId] = useState(0);
 	const [pairs, setPairs] = useState<Pair[]>([]);
+	const [mode, setMode] = useState('grid');
 	const router = useRouter();
 
 	if (!userId) {
@@ -76,7 +82,29 @@ const Matcha: React.FC = () => {
 
 	
 	return (
-		<GridBrowsing pairs={pairs} userId={userId} gridId={gridId} />
+		<>
+			<div className="w-[80vw] mx-auto flex items-center justify-between mt-[5vh]">
+				<Link href="/chat">
+					<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
+						<MessageCircle />
+					</div>
+				</Link>
+				<div className="flex items-center gap-2">
+					<Switch
+						id="airplane-mode"
+						onCheckedChange={() => setMode(mode === 'grid' ? 'advanced' : 'grid')}
+					/>
+      				<Label htmlFor="airplane-mode">Grid Mode</Label>
+				</div>
+			</div>
+			{
+				mode === 'grid' ? (
+					<GridBrowsing pairs={pairs} userId={userId} gridId={gridId} />
+				) : (
+					<AdvancedSearch pairs={pairs} userId={userId} gridId={gridId} />
+				)
+			}
+		</>
 	)
 }
 
