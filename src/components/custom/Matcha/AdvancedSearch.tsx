@@ -1,13 +1,25 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import { Eye, RotateCcw, Beef, Settings2 } from "lucide-react";
+import { Eye, RotateCcw, Settings2 } from "lucide-react";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/ui/avatar";
 import { CryptoService } from "@/server/CryptoService";
-import { Button } from "@/ui/button";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { TagsInput } from "@/ui/tagsinput";
+import { Label } from "@/components/ui/label";
+import { DualRangeSlider } from '@/ui/dualRangeSlider';
 
 interface Pair  {
 	associated_user_id: string,
@@ -31,16 +43,21 @@ interface AdvancedSearchProps {
 	pairs: Pair[];
 	userId: string;
 	gridId: number;
+	setGridId: (gridId: number) => void;
 }
 
-const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId }) => {
+const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId, setGridId }) => {
 	const [enrichedPairs, setEnrichedPairs] = useState<EnrichedUser[]>([]);
+	const [ageRange, setAgeRange] = useState([18, 100]);
+	const [fameRange, setFameRange] = useState([0, 100]);
+	const [locationRadius, setLocationRadius] = useState([50]);
+	const [tags, setTags] = useState<string[]>([]);
 	const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
 	useEffect(() => {
 		const fetchEnrichedPairs = async () => {
 			if (!userId) return;
-			if (pairs.length === 0) return;
+			if (pairs === undefined ) return;
 			const idsList = pairs.map(pair => pair.associated_user_id);
 			try {
 				const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/enrichUsers`, {
@@ -92,17 +109,102 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId }
 		}
 	};
 
+	const newGrid = async () => {
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/newGrid`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ encryptedUserId: userId, ageRange, fameRange, locationRadius, tags }),
+			});
+			if (response.status === 200) {
+				const data = await response.json();
+				setGridId(data);
+			}
+		} catch (error) {
+			console.error('Error creating new grid:', error);
+		}
+	}
+
 	return (
 		<>
 			<div className="w-[80vw] mx-auto flex items-center justify-center mt-[2.5vh] gap-4">
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-					<RotateCcw />
+					<RotateCcw onClick={() => newGrid()}/>
 				</div>
 				<div className="bg-foreground/90 rounded-3xl px-6 py-2 text-primary">
 					<p className="">0 <span className="text-primary/80">/ {pairs.length} discovered</span></p>
 				</div>
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-					<Settings2 />
+					<Dialog>
+						<DialogTrigger asChild>
+							<Settings2 />
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-[425px]">
+							<DialogHeader>
+								<DialogTitle>Advanced Search</DialogTitle>
+								<DialogDescription>
+									Search for users based on your preferences
+								</DialogDescription>
+							</DialogHeader>
+							<div className="grid gap-12 py-4">
+								<div className="grid grid-cols-4 items-center gap-4">
+									<Label htmlFor="name" className="text-right">
+										Age
+									</Label>
+									<DualRangeSlider
+										label={(value) => value}
+										value={ageRange}
+										onValueChange={setAgeRange}
+										min={18}
+										max={100}
+										step={1}
+										className="col-span-3"
+									/>
+								</div>
+								<div className="grid grid-cols-4 items-center gap-4">
+									<Label htmlFor="username" className="text-right">
+										Fame
+									</Label>
+									<DualRangeSlider
+										label={(value) => value}
+										value={fameRange}
+										onValueChange={setFameRange}
+										min={0}
+										max={100}
+										step={1}
+										className="col-span-3"
+									/>
+								</div>
+								<div className="grid grid-cols-4 items-center gap-4">
+									<Label htmlFor="username" className="text-right">
+										Location
+									</Label>
+									<DualRangeSlider
+										label={(value) => value}
+										value={locationRadius}
+										onValueChange={setLocationRadius}
+										min={0}
+										max={200}
+										step={1}
+										className="col-span-3"
+									/>
+								</div>
+								<div className="grid grid-cols-4 items-center gap-4">
+									<Label htmlFor="username" className="text-right">
+										Tags
+									</Label>
+									<TagsInput
+										onValueChange={setTags}
+										className="col-span-3"
+										value={tags}
+									/>
+								</div>
+							</div>
+							<DialogFooter>
+								<Button onClick={() => newGrid()}>Save changes</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
 				</div>
 			</div>
 			<div className="w-[80vw] h-[80vh] mx-auto mt-[2vh] border-2 border-foreground/10 relative z-20">

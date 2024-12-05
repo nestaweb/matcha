@@ -75,6 +75,7 @@ const Matcha: React.FC = () => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				const data = await response.json();
+				console.log(data);
 				setPairs(data);
 			}
 		})
@@ -101,7 +102,7 @@ const Matcha: React.FC = () => {
 				mode === 'grid' ? (
 					<GridBrowsing pairs={pairs} userId={userId} gridId={gridId} />
 				) : (
-					<AdvancedSearch pairs={pairs} userId={userId} gridId={gridId} />
+					<AdvancedSearch pairs={pairs} userId={userId} gridId={gridId} setGridId={setGridId} />
 				)
 			}
 		</>

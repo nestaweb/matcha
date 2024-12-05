@@ -37,6 +37,15 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
+		if (!idsList || idsList === undefined) {
+			return NextResponse.json({ error: 'Missing IDs list' }, { status: 400 });
+		}
+
+		if (idsList.length === 0) {
+			console.log('No users found');
+			return NextResponse.json([], { status: 200 });
+		}
+
 		const decryptedIdsList = idsList.map((id: string) => {
 			const cryptedId = id.split('.');
 			const cryptedKeyId = { encryptedText: cryptedId[0], iv: cryptedId[1] };
