@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 			[pair_id]
 		);
 
-		console.log('Query successful:', updatePair.rows);
+		console.log('Query successful:', updatePair.rows[0].id);
 		return NextResponse.json(updatePair.rows, { status: 200 });
   	}
 	catch (error: any) {

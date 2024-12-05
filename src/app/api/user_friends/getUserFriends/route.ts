@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 			return friend.user_id === userId ? stringEncryptedFriendId : stringEncryptedUserId;
 		});
 
-		console.log('Query successful:', friends);
+		console.log('Query successful:', friends.length);
 		return NextResponse.json(friends, { status: 200 });
   	}
 	catch (error: any) {

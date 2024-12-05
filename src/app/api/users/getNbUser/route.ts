@@ -5,7 +5,7 @@ export async function GET() {
   try {
     console.log('Attempting to connect to database...');
 	  const nbResult = await pool.query('SELECT COUNT(*) FROM users');
-    console.log('Query successful:', nbResult.rows[0]);
+    console.log('Query successful:', nbResult.rows[0].id);
     return NextResponse.json(nbResult.rows[0]);
   }
   catch (error: any) {

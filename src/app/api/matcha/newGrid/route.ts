@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
-		const { encryptedUserId, ageRange, fameRange, locationRadius, tags } = await req.json();
+		const { encryptedUserId, ageRange, fameRange, locationRadius, tags, sort } = await req.json();
 
 		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
 			method: 'POST',
@@ -110,6 +110,29 @@ export async function POST(req: NextRequest) {
 			}
 		}
 
+		let sortCondition = 'ORDER BY common_tag_count DESC, distance ASC, fame DESC';
+		if (sort === 'ageasc') {
+			sortCondition = 'ORDER BY age ASC';
+		}
+		else if (sort === 'agedesc') {
+			sortCondition = 'ORDER BY age DESC';
+		}
+		else if (sort === 'fameasc') {
+			sortCondition = 'ORDER BY fame ASC';
+		}
+		else if (sort === 'famedesc') {
+			sortCondition = 'ORDER BY fame DESC';
+		}
+		else if (sort === 'locationasc') {
+			sortCondition = 'ORDER BY distance ASC';
+		}
+		else if (sort === 'locationdesc') {
+			sortCondition = 'ORDER BY distance DESC';
+		}
+		else if (sort === 'tagcount') {
+			sortCondition = 'ORDER BY common_tag_count DESC';
+		}
+
 		const userTags = tags ? tags : user.rows[0].tags.split(',');
 
 		const fameMin = fameRange.length == 2 ? fameRange[0] : 0;
@@ -120,6 +143,7 @@ export async function POST(req: NextRequest) {
 		let users: any[] = [];
 		let attempts = 0;
 		const maxAttempts = 10;
+		let emptyReturn = 0;
 		while (!randomUsersFetched && attempts < maxAttempts) {
 			attempts++;
 			let tempUsers: any[] = [];
@@ -171,7 +195,7 @@ export async function POST(req: NextRequest) {
 								WHERE user_tag = ANY($8::text[])
 							)
 						) AS matched_users
-						ORDER BY common_tag_count DESC, distance ASC, fame DESC
+						${sortCondition}
 						LIMIT $2
 					`,
 					[userId, nbUsersNeeded, userLatitude, userLongitude, locationRadius[0], ageRange[0], ageRange[1], userTags, fameMin, fameMax]
@@ -216,7 +240,7 @@ export async function POST(req: NextRequest) {
 								WHERE user_tag = ANY($7::text[])
 							)
 						) AS matched_users
-						ORDER BY common_tag_count DESC, distance ASC, fame DESC
+						${sortCondition}
 						LIMIT $2
 					`,
 					[userId, nbUsersNeeded, userLatitude, userLongitude, ageRange[0], ageRange[1], userTags, fameMin, fameMax]
@@ -256,7 +280,7 @@ export async function POST(req: NextRequest) {
 							${genderCondition}
 							AND (u.fame BETWEEN $8 AND $9)
 						) AS matched_users
-						ORDER BY common_tag_count DESC, distance ASC, fame DESC
+						${sortCondition}
 						LIMIT $2
 					`,
 					[userId, nbUsersNeeded, userLatitude, userLongitude, ageRange[0], ageRange[1], userTags, fameMin, fameMax]
@@ -292,7 +316,7 @@ export async function POST(req: NextRequest) {
 							${genderCondition}
 							AND (u.fame BETWEEN $9 AND $10)
 						) AS matched_users
-						ORDER BY common_tag_count DESC, distance ASC, fame DESC
+						${sortCondition}
 						LIMIT $2
 					`,
 					[userId, nbUsersNeeded, userLatitude, userLongitude, locationRadius[0], ageRange[0], ageRange[1], userTags, fameMin, fameMax]
@@ -367,18 +391,49 @@ export async function POST(req: NextRequest) {
 					id: `${cryptedUserId.encryptedText}.${cryptedUserId.iv}`,
 					firstName: user.firstname,
 					fame: user.fame,
-					distance: user.distance.toFixed(2)
+					distance: user.distance.toFixed(2),
+					age: user.age,
+					common_tag_count: user.common_tag_count
 				}
 			})
 
+			if (tempUsers.length === 0) {
+				emptyReturn++;
+			}
+
 			users = users.concat(tempUsers);
 
+			if (emptyReturn > 3) {
+				break;
+			}
 			if (users.length >= nbUsers) {
 				randomUsersFetched = true;
 			}
 			else {
 				nbUsersNeeded = nbUsers - users.length;
 			}
+		}
+
+		if (sort === 'ageasc') {
+			users.sort((a, b) => a.age - b.age);
+		}
+		else if (sort === 'agedesc') {
+			users.sort((a, b) => b.age - a.age);
+		}
+		else if (sort === 'fameasc') {
+			users.sort((a, b) => a.fame - b.fame);
+		}
+		else if (sort === 'famedesc') {
+			users.sort((a, b) => b.fame - a.fame);
+		}
+		else if (sort === 'locationasc') {
+			users.sort((a, b) => a.distance - b.distance);
+		}
+		else if (sort === 'locationdesc') {
+			users.sort((a, b) => b.distance - a.distance);
+		}
+		else if (sort === 'tagcount') {
+			users.sort((a, b) => b.common_tag_count - a.common_tag_count);
 		}
 
 		const generateRandomPairs = (

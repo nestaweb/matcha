@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		const pairs = await pool.query(
-			'SELECT * FROM matcha_pairs WHERE grid_id = $1',
+			'SELECT * FROM matcha_pairs WHERE grid_id = $1 ORDER BY id',
 			[gridId]
 		);
 

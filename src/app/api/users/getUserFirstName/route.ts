@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
 			body: JSON.stringify({ encryptedUserId })
 		});
 
-		console.log('Query successful:', user.rows);
 		return NextResponse.json(user.rows[0].firstname, { status: 200 });
   	}
 	catch (error: any) {

@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'No friends found' }, { status: 404 });
 		}
 
-		console.log('Query successful:', userFriends.rows);
+		console.log('Query successful:', userFriends.rows.length);
 		
 		const userFriendsResponse = userFriends.rows.map((friend: any) => {
 			const encryptedUserId = cryptoService.encrypt(friend.id.toString());

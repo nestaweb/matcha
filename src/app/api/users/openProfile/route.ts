@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
 		const reEncryptedUserId = cryptoService.encrypt(userId.toString());
 
-		console.log('Query successful:', user.rows[0]);
+		console.log('Query successful:', user.rows[0].id);
 		return NextResponse.redirect(new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/user/${reEncryptedUserId.encryptedText}.${reEncryptedUserId.iv}`, req.url));
 	}
 	catch (error: any) {

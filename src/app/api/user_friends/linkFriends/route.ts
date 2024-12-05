@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
 		
 
-		console.log('Query successful:', user.rows);
+		console.log('Query successful:', user.rows.length);
 		const userInfos = {
 			firstName: user.rows[0].firstname,
 			lastName: user.rows[0].lastname,

@@ -61,7 +61,6 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
-		console.log('Query successful:', user.rows);
 		return NextResponse.json(encryptedParamUserId, { status: 200 });
   	}
 	catch (error: any) {

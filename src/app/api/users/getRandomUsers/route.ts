@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'No users found' }, { status: 404 });
 		}
 
-		console.log('Query successful:', users);
+		console.log('Query successful:', users.length);
 		return NextResponse.json(users, { status: 200 });
 	}
 	catch (error: any) {

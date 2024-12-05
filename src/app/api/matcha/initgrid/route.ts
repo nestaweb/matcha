@@ -310,7 +310,7 @@ export async function POST(req: NextRequest) {
 			}
 		}
 
-		console.log('Query successful:', users);
+		console.log('Query successful:', users.length);
 		return NextResponse.json(newGrid.rows[0].id, { status: 200 });
   	}
 	catch (error: any) {

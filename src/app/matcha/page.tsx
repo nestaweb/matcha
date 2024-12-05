@@ -75,7 +75,6 @@ const Matcha: React.FC = () => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				const data = await response.json();
-				console.log(data);
 				setPairs(data);
 			}
 		})

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 			});
 		}
 
-		console.log('Query successful friends:', friends);
+		console.log('Query successful friends:', friends.length);
 
 		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
 			method: 'POST',
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 			body: JSON.stringify({ encryptedUserId })
 		});
 
-		console.log('Query successful user:', user.rows);
+		console.log('Query successful user:', user.rows.length);
 		const userInfos = {
 			firstName: user.rows[0].firstname,
 			lastName: user.rows[0].lastname,

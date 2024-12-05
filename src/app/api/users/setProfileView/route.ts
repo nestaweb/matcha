@@ -51,9 +51,6 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Profile view not recorded' }, { status: 404 });
 		}
 
-		
-
-		console.log('Query successful:', user.rows);
 		return NextResponse.json(visitedProfile.rows[0].id, { status: 200 });
   	}
 	catch (error: any) {
