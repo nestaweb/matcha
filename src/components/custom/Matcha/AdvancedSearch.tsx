@@ -284,7 +284,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId, 
 						return decryptedId === decryptedIdPair;
 					});
 					return (
-					<div key={index} className={`grid grid-cols-6 w-full items-center border-b-2 border-foreground/20 p-3 px-4 ${isDiscovered ? "bg-foreground/90 text-primary" : ""}`}>
+					<div key={index} className={`grid grid-cols-6 w-full items-center border-b-2 border-foreground/20 p-3 px-4 ${isDiscovered ? "" : "bg-foreground/90 text-primary"}`}>
 						<div className="flex items-center gap-3 col-span-2">
 							<Avatar className="w-[10%] h-auto">
 								<AvatarImage src="https://images.freeimages.com/images/large-previews/971/basic-shape-avatar-1632968.jpg?fmt=webp&h=350" alt="@shadcn" />
@@ -296,15 +296,15 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId, 
 						</div>
 						<div className="flex flex-col">
 							<p>{pair.age}</p>
-							<p className={`${isDiscovered ? "text-primary/70" : "text-foreground/70"} text-sm`}>age</p>
+							<p className={`${isDiscovered ? "text-foreground/70" : "text-primary/70"} text-sm`}>age</p>
 						</div>
 						<div className="flex flex-col">
 							<p>{pair.active ? "Active" : "Inactive"}</p>
-							<p className={`${isDiscovered ? "text-primary/70" : "text-foreground/70"} text-sm`}>status</p>
+							<p className={`${isDiscovered ? "text-foreground/70" : "text-primary/70"} text-sm`}>status</p>
 						</div>
 						<div className="flex flex-col">
 							<p>{pair.fame}</p>
-							<p className={`${isDiscovered ? "text-primary/70" : "text-foreground/70"} text-sm`}>fame</p>
+							<p className={`${isDiscovered ? "text-foreground/70" : "text-primary/70"} text-sm`}>fame</p>
 						</div>
 						<div onClick={() => openProfile(pair.id)}>
 							<div className="relative transition duration-300 cursor-pointer ease-in-out hover:bg-primary/30 flex items-center justify-center p-2 rounded-2xl z-10">
