@@ -19,6 +19,7 @@ const ViewUser: React.FC = () => {
 	const [friends, setFriends] = useState([] as string[]);
 	const [isFriend, setIsFriend] = useState(false);
 	const [isLiked, setIsLiked] = useState(false);
+	const [isActive, setIsActive] = useState(false);
 	const router = useRouter();
 	const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
@@ -71,6 +72,14 @@ const ViewUser: React.FC = () => {
 					setUser(data);
 					setTags(data.tags ? data.tags.split(',') : []);
 					setFriends(data.friends);
+					const lastSeen = data.lastSeen;
+					const now = new Date();
+					const lastSeenDate = new Date(lastSeen);
+					const diff = now.getTime() - lastSeenDate.getTime();
+					if (diff < 60000) {
+						setIsActive(true);
+					}
+					console.log(diff, lastSeenDate, now);
 				}
 			});
 			const profileIsLiked = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user_friends/isLiked`, {
@@ -194,6 +203,62 @@ const ViewUser: React.FC = () => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				setIsFriend(false);
+				setIsLiked(false);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
+	function reportProfile() {
+		if (!userId.includes('.')) {
+			console.error('Invalid ID');
+			return;
+		}
+		if (!myUserId.includes('.')) {
+			console.error('Invalid ID');
+			return;
+		}
+		const reportProfileFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user_friends/reportProfile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: myUserId, encryptedFriendId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				setIsFriend(false);
+				setIsLiked(false);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
+	function blockProfile() {
+		if (!userId.includes('.')) {
+			console.error('Invalid ID');
+			return;
+		}
+		if (!myUserId.includes('.')) {
+			console.error('Invalid ID');
+			return;
+		}
+		const blockProfileFetch = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user_friends/blockProfile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: myUserId, encryptedFriendId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				setIsFriend(false);
+				setIsLiked(false);
+				router.push('/matcha');
 			}
 		})
 		.catch((error) => {
@@ -209,6 +274,18 @@ const ViewUser: React.FC = () => {
 					<div className='flex gap-8 items-start justify-between'>
 						<div className='flex flex-col gap-3'>
 							<div className='flex gap-3'>
+								{
+									isActive &&
+									<div className='w-3 h-3 bg-teal-400/30 flex items-center justify-center rounded-full'>
+										<div className='w-1.5 h-1.5 bg-teal-400 rounded-full'></div>
+									</div>
+								}
+								{
+									!isActive &&
+									<div className='w-3 h-3 bg-rose-400/30 flex items-center justify-center rounded-full'>
+										<div className='w-1.5 h-1.5 bg-rose-400 rounded-full'></div>
+									</div>
+								}
 								<p className='text-4xl'>{user.firstName} {user.lastName}</p>
 								<span className='text-lg -mt-1'>[{user.age}]</span>
 							</div>
@@ -320,6 +397,13 @@ const ViewUser: React.FC = () => {
 							null
 						}
 					</div>
+					{
+						!isFriend ?
+						<Button onClick={() => reportProfile()} className='w-full text-primary'>Report Account</Button>
+						:
+						<Button onClick={() => blockProfile()} className='w-full text-primary'>Block Account</Button>
+					}
+					
 				</div>
 				<div className='flex items-end w-4/6 h-[84vh] gap-8'>
 					<div className='flex items-center h-full w-2/5 bg-foreground/30 rounded-2xl relative'>

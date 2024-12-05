@@ -71,7 +71,8 @@ export async function POST(req: NextRequest) {
 			friends: friends,
 			locationAccess: user.rows[0].locationaccess,
 			city: user.rows[0].city,
-			fame: user.rows[0].fame
+			fame: user.rows[0].fame,
+			lastSeen: user.rows[0].last_seen,
 		}
 		return NextResponse.json(userInfos, { status: 200 });
   	}

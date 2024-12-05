@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
-		const { id } = await req.json();
+		const { id, encryptedUserId } = await req.json();
 
 		if (!id || id === undefined) {
 			console.log('Missing ID');
@@ -42,6 +42,34 @@ export async function POST(req: NextRequest) {
 
 		if (user.rows.length === 0) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+		}
+
+		if (!encryptedUserId || encryptedUserId === undefined) {
+			console.log('Missing Encrypted User ID');
+			return NextResponse.json({ error: 'Missing Encrypted User ID' }, { status: 400 });
+		}
+
+		const cryptedMyId = id.split('.');
+		const cryptedKeyMyId = { encryptedText: cryptedMyId[0], iv: cryptedMyId[1] };
+
+		const myId = parseInt(cryptoService.decrypt(cryptedKeyMyId));
+
+		const me = await pool.query(
+			'SELECT * FROM users WHERE id = $1',
+			[myId]
+		);
+
+		if (me.rows.length === 0) {
+			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+		}
+
+		const hasbeenBlocked = await pool.query(
+			'SELECT * FROM profile_blocked WHERE user_id = $1 AND blocked_user_id = $2',
+			[userId, myId]
+		);
+
+		if (hasbeenBlocked.rows.length > 0) {
+			return NextResponse.redirect(new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/matcha`, req.url));
 		}
 
 		const reEncryptedUserId = cryptoService.encrypt(userId.toString());

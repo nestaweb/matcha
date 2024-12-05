@@ -55,7 +55,10 @@ export async function POST(req: NextRequest) {
 			[pair_id]
 		);
 
-		console.log('Query successful:', updatePair.rows[0].id);
+		if (updatePair.rows.length === 0) {
+			console.log('Pair not updated');
+			return NextResponse.json({ error: 'Pair not updated' }, { status: 404 });
+		}
 		return NextResponse.json(updatePair.rows, { status: 200 });
   	}
 	catch (error: any) {

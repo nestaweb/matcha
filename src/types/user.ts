@@ -14,4 +14,5 @@ export interface UserResponse {
 	locationAccess: boolean;
 	city: string;
 	fame: number;
+	lastSeen: string;
 }

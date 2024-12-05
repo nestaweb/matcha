@@ -141,7 +141,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ pairs, userId, gridId, 
 			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/openProfile`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id }),
+				body: JSON.stringify({ id, encryptedUserId: userId }),
 			});
 			if (response.redirected) {
 				window.location.href = response.url;
