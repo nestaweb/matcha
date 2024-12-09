@@ -55,6 +55,16 @@ export async function POST(req: NextRequest) {
 			body: JSON.stringify({ encryptedUserId })
 		});
 
+		const fameCalculation = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/calculateFameRating`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId })
+		})
+
+		const fame = await fameCalculation.json();
+
 		console.log('Query successful user:', user.rows.length);
 		const userInfos = {
 			firstName: user.rows[0].firstname,
@@ -71,7 +81,7 @@ export async function POST(req: NextRequest) {
 			friends: friends,
 			locationAccess: user.rows[0].locationaccess,
 			city: user.rows[0].city,
-			fame: user.rows[0].fame,
+			fame: fame,
 			lastSeen: user.rows[0].last_seen,
 		}
 		return NextResponse.json(userInfos, { status: 200 });

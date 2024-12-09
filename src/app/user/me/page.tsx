@@ -187,6 +187,13 @@ const UserMe: React.FC = () => {
 						<div className='col-start-2 flex justify-end'>
 							<p className='capitalize'>{user.goal}</p>
 						</div>
+						<div className='flex items-center w-full justify-between col-start-1 font-medium'>
+							<p>Fame</p>
+							<p>\\</p>
+						</div>
+						<div className='col-start-2 flex justify-end'>
+							<p className="">{user.fame} <span className='text-xs text-foreground/70'>/100</span></p>
+						</div>
 					</div>
 					<div className='flex flex-col gap-2 mt-12'>
 						<div className='flex items-center w-1/2 justify-between pr-1 font-medium'>
