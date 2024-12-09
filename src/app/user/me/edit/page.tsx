@@ -25,6 +25,7 @@ import {
 	FormControl,
 	FormField,
 	FormItem,
+	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
 import {
@@ -36,6 +37,7 @@ import {
 	DialogTrigger,
 	DialogFooter
 } from "@/components/ui/dialog";
+import Link from "next/link";
 
 type picture = {
 	uploadPath: string;
@@ -79,6 +81,12 @@ const tagsFormSchema = z.object({
 		.regex(/^[a-zA-Z0-9_]*$/, {
 			message: "Tag must not have special characters."
 		})
+})
+
+const sensitiveFormSchema = z.object({
+	email: z.string().email({
+		message: "Invalid email address.",
+	})
 })
 
 const EditUser: React.FC = () => {
@@ -302,7 +310,6 @@ const EditUser: React.FC = () => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				const data = await response.json();
-				console.log(data);
 				setFiles(data);
 				setFile(null);
 			}
@@ -314,8 +321,6 @@ const EditUser: React.FC = () => {
 
 
 	useEffect(() => {
-		console.log("here");
-		console.log(userId);
 		if (!userId) return;
 		const getUserPictures = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getPictures`, {
 			method: 'POST',
@@ -327,11 +332,33 @@ const EditUser: React.FC = () => {
 		.then(async (response) => {
 			if (response.status === 200) {
 				const data = await response.json();
-				console.log(data);
 				setFiles(data);
 			}
 		});
 	}, [file, userId]);
+
+	const sensitiveForm = useForm<z.infer<typeof sensitiveFormSchema>>({
+		resolver: zodResolver(sensitiveFormSchema),
+		defaultValues: {
+			email: user.email || "",
+		},
+	});
+
+	const changePasswordOrEmail = (values: z.infer<typeof sensitiveFormSchema>) => {
+		const { email } = values;
+		const changeEmail = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserEmail`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ encryptedUserId: userId, newEmail: email }),
+		})
+		.then((response) => {
+			if (response.redirected) {
+				window.location.href = response.url;
+			}
+		})
+	}
 
 	return (
 		<Background variant='userProfile'>
@@ -534,7 +561,6 @@ const EditUser: React.FC = () => {
 										</Form>
 									</DialogContent>
 								</Dialog>
-								
 							</div>
 						</div>
 						<div className='flex flex-col gap-2'>
@@ -543,17 +569,53 @@ const EditUser: React.FC = () => {
 								<p>\\</p>
 							</div>
 							<FormField
-									control={userEditForm.control}
-									name="bio"
-									render={({ field }) => (
-										<FormItem>
-											<FormControl>
-												<Textarea  {...field} defaultValue={"Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas recusandae deleniti sint pariatur soluta cum veniam officia consectetur explicabo tenetur laborum similique nesciunt, odit labore? Beatae qui officiis temporibus omnis."} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								control={userEditForm.control}
+								name="bio"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<Textarea  {...field} defaultValue={"Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas recusandae deleniti sint pariatur soluta cum veniam officia consectetur explicabo tenetur laborum similique nesciunt, odit labore? Beatae qui officiis temporibus omnis."} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<Dialog>
+								<DialogTrigger>
+									<Button type='button'>Change password OR email</Button>
+								</DialogTrigger>
+								<DialogContent>
+									<Form {...sensitiveForm}>
+										<form onSubmit={sensitiveForm.handleSubmit(changePasswordOrEmail)} className='flex flex-col gap-4'>
+											<DialogHeader>
+												<DialogTitle>Change your email or your password here</DialogTitle>
+												<DialogDescription>Tell your friends about your interests !</DialogDescription>
+											</DialogHeader>
+											<div className='flex flex-col gap-3 justify-center w-full'>
+												<FormField
+													control={sensitiveForm.control}
+													name="email"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Email</FormLabel>
+															<FormControl>
+																<Input defaultValue={user.email} type='email' {...field} className='w-full' />
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
+												<Link href="/passwordReset" className="ml-auto inline-block text-sm underline">
+													Forgot your password?
+												</Link>
+											</div>
+											<DialogFooter>
+												<Button type="button" onClick={sensitiveForm.handleSubmit(changePasswordOrEmail)}>Change</Button>
+											</DialogFooter>
+										</form>
+									</Form>
+								</DialogContent>
+							</Dialog>
 						</div>
 						<div className='flex gap-2'>
 							<Button className='w-full'>Save Profile</Button>
