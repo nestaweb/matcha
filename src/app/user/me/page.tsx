@@ -12,6 +12,11 @@ import { useRouter } from 'next/navigation';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import getCityFromCoordinates from '@/utils/getCityFromCoordonates';
 
+type picture = {
+	uploadPath: string;
+	imageBuffer: Buffer;
+}
+
 const UserMe: React.FC = () => {
 	const [userId, setUserId] = useState('');
 	const [user, setUser] = useState({} as UserResponse);
@@ -20,6 +25,7 @@ const UserMe: React.FC = () => {
 	const router = useRouter();
 	const { latitude, longitude, error, loading } = useGeolocation();
 	const [city, setCity] = useState('');
+	const [files, setFiles] = useState([] as picture[]);
 
 	if (!userId) {
 		const isLoggedIn = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
@@ -98,6 +104,24 @@ const UserMe: React.FC = () => {
 			saveLocation();
 		}
 	});
+
+	useEffect(() => {
+		if (!userId) return;
+		const getUserPictures = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getPictures`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				console.log(data);
+				setFiles(data);
+			}
+		});
+	}, [userId]);
 
 	return (
 		<Background variant='userProfile'>
@@ -198,52 +222,46 @@ const UserMe: React.FC = () => {
 					</div>
 				</div>
 				<div className='flex items-end w-4/6 h-[84vh] gap-8'>
-					<div className='flex items-center h-full w-2/5 bg-foreground/30 rounded-2xl relative'>
-						<Image
-							src='/images/pp0.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-3xl'
-						/>
-						<Image
-							src='/images/pp0.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp1.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp2.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp3.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-					</div>
-					<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
-						<Plus size={30} />
-					</div>
+				{
+					files.map((file, index) => {
+						const imageBuffer = file.imageBuffer;
+						return (
+						index === 0 ?
+						<div className='flex items-center h-full w-2/5 bg-foreground/30 rounded-2xl relative'>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-3xl'
+							/>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-contain object-center z-10'
+							/>
+						</div>
+						:
+						<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-contain object-center z-10'
+							/>
+						</div>
+					)})
+				}
+				{
+					[...Array(5 - files.length)].map((_, index) => (
+						<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
+							<Plus size={30} />
+						</div>
+					))
+				}
 				</div>
 				{/* <div className='z-20 flex flex-col rounded-2xl mr-4 w-[63vw] p-6 border-2 border-foreground/5 h-[84vh] max-h-[84vh] gap-8 overflow-x-scroll absolute right-0 bg-[#f4f4f4bb] backdrop-blur-xl'>
 					<h1 className='text-4xl'>Settings</h1>

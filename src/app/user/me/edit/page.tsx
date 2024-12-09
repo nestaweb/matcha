@@ -18,7 +18,7 @@ import { UserResponse } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
 	Form,
@@ -36,6 +36,11 @@ import {
 	DialogTrigger,
 	DialogFooter
 } from "@/components/ui/dialog";
+
+type picture = {
+	uploadPath: string;
+	imageBuffer: Buffer;
+}
 
 const editUserFormSchema = z.object({
 	firstName: z.string()
@@ -80,9 +85,10 @@ const EditUser: React.FC = () => {
 	const [userId, setUserId] = useState('');
 	const [user, setUser] = useState({} as UserResponse);
 	const [tags, setTags] = useState([] as string[]);
-	const [friends, setFriends] = useState([] as string[]);
 	const router = useRouter();
 	const [locationEnabled, setLocationEnabled] = useState(false);
+	const [file, setFile] = useState<File | null>(null);
+	const [files, setFiles] = useState<picture[]>([]);
 
 	if (!userId) {
 		const isLoggedIn = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
@@ -102,24 +108,26 @@ const EditUser: React.FC = () => {
 		})
 	}
 
-	if (userId && !user.email) {
-		const getUser = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserInfos`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ encryptedUserId: userId })
-		})
-		.then(async (response) => {
-			if (response.status === 200) {
-				const data = await response.json();
-				setUser(data);
-				setTags(data.tags ? data.tags.split(',') : []);
-				setFriends(data.friends);
-				setLocationEnabled(data.locationAccess);
-			}
-		});
-	}
+
+	useEffect(() => {
+		if (userId && !user.email) {
+			const getUser = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUserInfos`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ encryptedUserId: userId })
+			})
+			.then(async (response) => {
+				if (response.status === 200) {
+					const data = await response.json();
+					setUser(data);
+					setTags(data.tags ? data.tags.split(',') : []);
+					setLocationEnabled(data.locationAccess);
+				}
+			});
+		}
+	}, [userId]);
 
 	function enableLocation() {
 		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLocationAccess`, {
@@ -237,6 +245,93 @@ const EditUser: React.FC = () => {
 		})
 		tagForm.reset();
 	}
+
+	const handleUpload = async () => {
+		if (!file) return;
+	
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('encryptedUserId', userId);
+	
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/uploadPicture`, {
+				method: 'POST',
+				body: formData,
+			});
+	
+			if (response.ok) {
+				alert('Image uploaded successfully!');
+				setFile(null);
+			} else {
+				const error = await response.json();
+				alert(`Upload failed: ${error.message}`);
+			}
+		} catch (error) {
+			console.error('Upload error:', error);
+		}
+	};
+	
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files[0]) {
+			const selectedFile = event.target.files[0];
+			const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+			const maxSize = 5 * 1024 * 1024; // 5MB
+	
+			if (!allowedTypes.includes(selectedFile.type)) {
+				alert('Only JPEG, PNG, or GIF files are allowed.');
+				return;
+			}
+	
+			if (selectedFile.size > maxSize) {
+				alert('File size must not exceed 5MB.');
+				return;
+			}
+	
+			setFile(selectedFile);
+		}
+	};
+
+	const deletePicture = (path: string) => {
+		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/deletePicture`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId, imagePath: path })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				console.log(data);
+				setFiles(data);
+				setFile(null);
+			}
+		})
+		.catch((error) => {
+			console.error('Error:', error);
+		});
+	}
+
+
+	useEffect(() => {
+		console.log("here");
+		console.log(userId);
+		if (!userId) return;
+		const getUserPictures = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getPictures`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ encryptedUserId: userId })
+		})
+		.then(async (response) => {
+			if (response.status === 200) {
+				const data = await response.json();
+				console.log(data);
+				setFiles(data);
+			}
+		});
+	}, [file, userId]);
 
 	return (
 		<Background variant='userProfile'>
@@ -466,56 +561,57 @@ const EditUser: React.FC = () => {
 					</form>
 				</Form>
 				<div className='flex items-end w-4/6 h-[84vh] gap-8'>
-					<div className='flex items-center h-full w-2/5 bg-foreground/30 rounded-2xl relative'>
-						<Image
-							src='/images/pp0.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-3xl'
-						/>
-						<Image
-							src='/images/pp0.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp1.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp2.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
-					</div>
-					<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
-						<Image
-							src='/images/pp3.jpg'
-							width={450}
-							height={400}
-							alt='profile picture'
-							className='w-full h-full object-contain object-center z-10'
-						/>
-						<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full'><X size={20} /></div>
-					</div>
-					<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
-						<Plus size={30} />
-					</div>
+				{
+					files.map((file, index) => {
+						const imageBuffer = file.imageBuffer;
+						return (
+						index === 0 ?
+						<div className='flex items-center h-full w-2/5 bg-foreground/30 rounded-2xl relative'>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-cover object-center absolute top-0 left-0 rounded-2xl blur-3xl'
+							/>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-contain object-center z-10'
+							/>
+							<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full z-20' onClick={() => deletePicture(file.uploadPath)}><X size={20} /></div>
+						</div>
+						:
+						<div className='flex items-center bg-foreground/30 h-2/6 rounded-2xl relative flex-1'>
+							<Image
+								src={imageBuffer.toString()}
+								width={450}
+								height={400}
+								alt='profile picture'
+								className='w-full h-full object-contain object-center z-10'
+							/>
+							<div className='absolute -top-2 -right-2 bg-foreground/90 text-primary p-1 rounded-full z-20' onClick={() => deletePicture(file.uploadPath)}><X size={20} /></div>
+						</div>
+					)})
+				}
+				{
+					[...Array(5 - files.length)].map((_, index) => (
+						index === 0 ?
+						<div key={index} className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
+							<Plus size={30} />
+							<input type="file" accept="image/*" onChange={handleFileChange} />
+							<button onClick={handleUpload} disabled={!file}>
+								Télécharger l'image
+							</button>
+						</div>
+						:
+						<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
+							<Plus size={30} />
+						</div>
+					))
+				}
 				</div>
 			</div>
 		</Background>

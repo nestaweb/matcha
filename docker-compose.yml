@@ -13,6 +13,7 @@ services:
       - .:/app
       - /app/.next
       - /app/node_modules
+      - /app/public/profileImages
     networks:
       - chat-network
 
