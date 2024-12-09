@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS profile_liked (
     user_id INT NOT NULL,
     liked_user_id INT NOT NULL,
     liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (liked_user_id) REFERENCES users (id) ON DELETE CASCADE,
     UNIQUE (user_id, liked_user_id)

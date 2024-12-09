@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		const unlikeFriend = await pool.query(
-			'DELETE FROM profile_liked WHERE user_id = $1 AND liked_user_id = $2 RETURNING *',
+			'UPDATE profile_liked SET deleted_at = NOW() WHERE user_id = $1 AND liked_user_id = $2 RETURNING *',
 			[friendId, userId]
 		);
 

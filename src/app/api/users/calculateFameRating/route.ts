@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 		);
 
 		const likesReceived = await pool.query(
-			'SELECT COUNT(*) FROM profile_liked WHERE liked_user_id = $1',
+			'SELECT COUNT(*) FROM profile_liked WHERE liked_user_id = $1 AND deleted_at IS NULL',
 			[userId]
 		);
 

@@ -270,16 +270,6 @@ const UserMe: React.FC = () => {
 					))
 				}
 				</div>
-				{/* <div className='z-20 flex flex-col rounded-2xl mr-4 w-[63vw] p-6 border-2 border-foreground/5 h-[84vh] max-h-[84vh] gap-8 overflow-x-scroll absolute right-0 bg-[#f4f4f4bb] backdrop-blur-xl'>
-					<h1 className='text-4xl'>Settings</h1>
-					<ul>
-						<li>email</li>
-						<li>password</li>
-						<li>notification</li>
-						<li>localisation</li>
-						<li>delete account</li>
-					</ul>
-				</div> */}
 			</div>
 		</Background>
 	)

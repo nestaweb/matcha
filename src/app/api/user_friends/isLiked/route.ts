@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		const alreadyLiked = await pool.query(
-			'SELECT * FROM profile_liked WHERE user_id = $1 AND liked_user_id = $2',
+			'SELECT * FROM profile_liked WHERE user_id = $1 AND liked_user_id = $2 AND deleted_at IS NULL',
 			[userId, friendId]
 		);
 
