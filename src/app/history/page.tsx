@@ -77,6 +77,19 @@ const History: React.FC = () => {
 		return new Date(b.date).getTime() - new Date(a.date).getTime();
 	});
 
+	useEffect(() => {
+		if (userId) {
+			fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notifications/read`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ encryptedUserId: userId })
+			})
+		}
+	}, [dataHistory]);
+
+
 	return (
 		<Background variant='userProfile'>
 			<NavBar isLoggedIn={userId ? true : false} />

@@ -151,19 +151,18 @@ export async function POST(req: NextRequest) {
 			[userId]
 		);
 
-		let newNotifications = [];
 		if (storedNotifications.rows.length > 0) {
-			newNotifications = notifications.filter((notification, index, self) =>
+			notifications = notifications.filter((notification, index, self) =>
 				index === self.findIndex((t) => (
 					t.type === notification.type && t.title === notification.title && t.date === notification.date
 				))
 			);
 		}
 
-		for (let i = 0; i < newNotifications.length; i++) {
+		for (let i = 0; i < notifications.length; i++) {
 			const insertNotification = await pool.query(
 				'INSERT INTO notifications (user_id, type, title, date) VALUES ($1, $2, $3, $4) RETURNING *',
-				[userId, newNotifications[i].type, newNotifications[i].title, newNotifications[i].date]
+				[userId, notifications[i].type, notifications[i].title, notifications[i].date]
 			);
 		}
 

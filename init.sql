@@ -133,6 +133,17 @@ CREATE TABLE IF NOT EXISTS matcha_clicked_cells (
     FOREIGN KEY (grid_id) REFERENCES matcha_grid (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    title TEXT,
+    date TIMESTAMP,
+    read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified, location, locationAccess) VALUES ('Nesta', 'Loisy', 'nesta.loisy@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 18, 'date', 'code', true, '41.38955,2.17627', true);
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified, location) VALUES ('User1', 'LastName2', 'l.2@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'male', 'heterosexual', 28, 'date', 'code', true, '41.53324,2.44666');
 INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientation, age, goal, tags, verified, location) VALUES ('User2', 'LastName3', 'l.3@gmail.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'female', 'heterosexual', 25, 'date', 'bouldering,code', true, '42.54563,3.02542');
