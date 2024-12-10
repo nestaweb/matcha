@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 		console.log('Attempting to connect to database...');
 		const result = await pool.query(
 			'INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4) RETURNING *',
-			[firstName, lastName, email, encryptedPassword]
+			[firstName, lastName, email, !password ? null : encryptedPassword]
 		);
 		console.log('Query successful:', result.rows);
 

@@ -5,11 +5,11 @@ import Link from "next/link"
 import { MoveLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const loginFormSchema = z.object({
@@ -137,7 +138,7 @@ const Login: React.FC = () => {
 								<Button type="submit" className="w-full">
 									Login
 								</Button>
-								<Button className="w-full">
+								<Button className="w-full" type='button' onClick={() => signIn("google")}>
 									Login with Google
 								</Button>
 							</form>

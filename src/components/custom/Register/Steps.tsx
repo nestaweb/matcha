@@ -26,6 +26,8 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import { signIn } from "next-auth/react";
+import { useCookies } from 'next-client-cookies';
 
 const registerFormSchema = z.object({
 	firstName: z.string().min(2, {
@@ -59,9 +61,17 @@ interface StepsProps {
 
 }
 
-export const FirstStep: React.FC<StepsProps> = ({  }) => {
+export const FirstStep: React.FC<StepsProps> = async ({  }) => {
 	const [password, setPassword] = useState("");
 	const router = useRouter();
+	const cookieStore = useCookies();
+	const redirectURI = cookieStore.get('redirectURI');
+
+	useEffect(() => {
+		if (redirectURI === null || redirectURI === undefined) return;
+		const redirectUriValue = redirectURI;
+		router.push(redirectUriValue);
+	}, [redirectURI])
 
 	const registerForm = useForm<z.infer<typeof registerFormSchema>>({
 		resolver: zodResolver(registerFormSchema),
@@ -111,6 +121,10 @@ export const FirstStep: React.FC<StepsProps> = ({  }) => {
 			strengh += 1;
 		}
 		return strengh;
+	}
+
+	const handleSignInOauth = async ({ authOption }: { authOption: string }) => {
+		const result = await signIn(authOption);
 	}
 
 	return (
@@ -209,7 +223,7 @@ export const FirstStep: React.FC<StepsProps> = ({  }) => {
 						<Button type="submit" className="w-full">
 							Continue
 						</Button>
-						<Button className="w-full">
+						<Button className="w-full" type="button" onClick={() => handleSignInOauth({authOption: "google"})}>
 							Continue with Google
 						</Button>
 					</form>
