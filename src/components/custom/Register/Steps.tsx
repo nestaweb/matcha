@@ -226,6 +226,9 @@ export const FirstStep: React.FC<StepsProps> = async ({  }) => {
 						<Button className="w-full" type="button" onClick={() => handleSignInOauth({authOption: "google"})}>
 							Continue with Google
 						</Button>
+						<Button className="w-full" type="button" onClick={() => handleSignInOauth({authOption: "42-school"})}>
+							Continue with 42
+						</Button>
 					</form>
 				</Form>
 				<div className="mt-4 text-center text-sm">

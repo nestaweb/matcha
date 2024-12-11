@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { CookiesProvider } from "next-client-cookies/server";
 
 export const metadata: Metadata = {
   title: "42Matcha",
@@ -17,7 +18,9 @@ export default function RootLayout({
       <body
         className={`scroll-smooth`}
       >
+        <CookiesProvider>
         {children}
+        </CookiesProvider>
         <Toaster />
       </body>
     </html>

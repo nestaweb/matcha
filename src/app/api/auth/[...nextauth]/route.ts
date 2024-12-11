@@ -28,6 +28,10 @@ const authOptions: NextAuthOptions = {
 				},
 			},
 		}),
+		FortyTwoProvider({
+			clientId: process.env.FORTY_TWO_CLIENT_ID!,
+			clientSecret: process.env.FORTY_TWO_CLIENT_SECRET!,
+		}),
 	],
 	callbacks: {
 		async signIn({ user, account, profile }) {

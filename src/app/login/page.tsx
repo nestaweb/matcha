@@ -141,6 +141,9 @@ const Login: React.FC = () => {
 								<Button className="w-full" type='button' onClick={() => signIn("google")}>
 									Login with Google
 								</Button>
+								<Button className="w-full" type='button' onClick={() => signIn("42-school")}>
+									Login with 42
+								</Button>
 							</form>
 						</Form>
 						<div className="mt-4 text-center text-sm">
