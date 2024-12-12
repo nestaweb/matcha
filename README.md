@@ -1,4 +1,4 @@
-# Matcha
+# Matcha From 42School
 
 Matcha is a dating platform designed to connect users based on their preferences, interests, and location. It features a streamlined matching process and includes additional functionalities such as profile customization, notifications, and secure chat.
 
