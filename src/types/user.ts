@@ -2,6 +2,7 @@ export interface UserResponse {
 	firstName: string;
 	lastName: string;
 	email: string;
+	provider: string;
 	age: number;
 	sexualOrientation: string;
 	gender: string;

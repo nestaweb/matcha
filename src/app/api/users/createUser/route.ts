@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ error: 'Missing body' }, { status: 400 });
 	}
 	try {
-		const { firstName, lastName, email, password } = await req.json();
+		const { firstName, lastName, email, password, provider } = await req.json();
 
 		const cryptoService = new CryptoService(process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
 
@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
 		const encryptedPassword = await bcrypt.hash(password, 10);
 		console.log('Attempting to connect to database...');
 		const result = await pool.query(
-			'INSERT INTO users (firstName, lastName, email, password) VALUES ($1, $2, $3, $4) RETURNING *',
-			[firstName, lastName, email, !password ? null : encryptedPassword]
+			'INSERT INTO users (firstName, lastName, email, password, provider) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+			[firstName, lastName, email, !password ? null : encryptedPassword, provider]
 		);
 		console.log('Query successful:', result.rows);
 

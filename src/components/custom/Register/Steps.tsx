@@ -89,7 +89,7 @@ export const FirstStep: React.FC<StepsProps> = async ({  }) => {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(values),
+			body: JSON.stringify({...values, provider: "credentials"}),
 		})
 		.then(async (response) => {
 			if (response.status === 200) {
@@ -256,6 +256,13 @@ export const SecondStep: React.FC<StepsProps> = ({  }) => {
 	const cryptedKey = encryptedOtp?.split('.');
 	const userId = encryptedUserId?.split('.');
 	const router = useRouter();
+	const cookieStore = useCookies();
+	const redirectURI = cookieStore.get('redirectURI');
+
+	useEffect(() => {
+		if (redirectURI === null || redirectURI === undefined) return;
+		cookieStore.remove('redirectURI');
+	}, [redirectURI])
 
 	useEffect(() => {
 		if (encryptedUserId === null || encryptedUserId === ".") {

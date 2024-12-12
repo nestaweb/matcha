@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     lastName VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
+    provider VARCHAR(255),
     gender VARCHAR(255),
     sexualOrientation VARCHAR(255),
     age INT,

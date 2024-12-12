@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/server/db';
 import { CryptoService } from '@/server/CryptoService';
+import { UserResponse } from '@/types/user';
 
 export async function POST(req: NextRequest) {
 	if (!req.body) {
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
 			firstName: user.rows[0].firstname,
 			lastName: user.rows[0].lastname,
 			email: user.rows[0].email,
+			provider: user.rows[0].provider,
 			age: user.rows[0].age,
 			sexualOrientation: user.rows[0].sexualorientation,
 			gender: user.rows[0].gender,
@@ -83,7 +85,7 @@ export async function POST(req: NextRequest) {
 			city: user.rows[0].city,
 			fame: fame,
 			lastSeen: user.rows[0].last_seen,
-		}
+		} as UserResponse;
 		return NextResponse.json(userInfos, { status: 200 });
   	}
 	catch (error: any) {

@@ -97,6 +97,9 @@ const EditUser: React.FC = () => {
 	const [locationEnabled, setLocationEnabled] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
 	const [files, setFiles] = useState<picture[]>([]);
+	const [photos, setPhotos] = useState<any[]>([]);
+	const [error, setError] = useState<string | null>(null);
+	const [googlePhotosOpen, setGooglePhotosOpen] = useState(false);
 
 	if (!userId) {
 		const isLoggedIn = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
@@ -335,7 +338,7 @@ const EditUser: React.FC = () => {
 				setFiles(data);
 			}
 		});
-	}, [file, userId]);
+	}, [file, userId, googlePhotosOpen]);
 
 	const sensitiveForm = useForm<z.infer<typeof sensitiveFormSchema>>({
 		resolver: zodResolver(sensitiveFormSchema),
@@ -359,6 +362,48 @@ const EditUser: React.FC = () => {
 			}
 		})
 	}
+
+	useEffect(() => {
+		const fetchPhotos = async () => {
+		  try {
+			const userPhotos = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUsersPhotos`, {
+			  method: 'POST',
+			  headers: {
+				'Content-Type': 'application/json',
+			  },
+			  body: JSON.stringify({ userId }),
+			}).then((res) => res.json());
+			setPhotos(userPhotos);
+		  } catch (err: any) {
+			setError(err.message);
+		  }
+		};
+	
+		fetchPhotos();
+	}, []);
+
+	async function downloadGooglePhoto(photoUrl: string, encryptedUserId: string) {
+		try {
+			const response = await fetch('/api/users/downloadGooglePhotos', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ photoUrl, encryptedUserId }),
+			});
+	
+			if (!response.ok) {
+				throw new Error(`Error: ${response.statusText}`);
+			}
+	
+			const data = await response.json();
+			setGooglePhotosOpen(false);
+			alert('Image uploaded successfully!');
+		} catch (error) {
+			console.error('Error downloading Google Photo:', error);
+		}
+	}
+	
 
 	return (
 		<Background variant='userProfile'>
@@ -662,11 +707,38 @@ const EditUser: React.FC = () => {
 					[...Array(5 - files.length)].map((_, index) => (
 						index === 0 ?
 						<div key={index} className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
-							<Plus size={30} />
-							<input type="file" accept="image/*" onChange={handleFileChange} />
+							<label>
+								<input className='overflow-hidden w-0' type="file" accept="image/*" onChange={handleFileChange} />
+								<Plus size={30} />
+							</label>
+							
 							<button onClick={handleUpload} disabled={!file}>
 								Télécharger l'image
 							</button>
+							{
+								user.provider === 'google' &&
+								<Dialog open={googlePhotosOpen} onOpenChange={setGooglePhotosOpen}>
+									<DialogTrigger>
+										<button>
+											Importer de google
+										</button>
+									</DialogTrigger>
+									<DialogContent>
+										<DialogTitle>Your google photos</DialogTitle>
+									{photos.length > 0 ? (
+										<div className='flex flex-wrap max-h-[70vh] max-w-[70vw] overflow-x-scroll'>
+										{photos.map((photo, index) => (
+											<div key={index} onClick={() => downloadGooglePhoto(photo.baseUrl, userId)}>
+												<img src={photo.baseUrl} alt={`Photo ${index + 1}`} />
+											</div>
+										))}
+										</div>
+									) : (
+										<p>No photos available.</p>
+									)}
+									</DialogContent>
+								</Dialog>
+							}
 						</div>
 						:
 						<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
