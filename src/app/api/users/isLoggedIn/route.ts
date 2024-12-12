@@ -9,7 +9,7 @@ export async function GET() {
 
 		const userIdCookie = cookieStore.get('userId');
 		if (!userIdCookie) {
-			return NextResponse.json({ error: 'Missing User ID' }, { status: 400 });
+			return NextResponse.json({ message: 'Missing User ID' }, { status: 206 });
 		}
 		const userIdValue = userIdCookie.value;
 		const cryptedUserId = userIdValue.split('.');
@@ -19,7 +19,7 @@ export async function GET() {
 		const userId = parseInt(cryptoService.decrypt({encryptedText: cryptedUserId[0], iv: cryptedUserId[1]}));
 
 		if (!userId || userId === undefined) {
-			return NextResponse.json({ error: 'Missing User ID' }, { status: 400 });
+			return NextResponse.json({ message: 'Missing User ID' }, { status: 206 });
 		}
 
 		const user = await pool.query(
@@ -28,7 +28,7 @@ export async function GET() {
 		);
 
 		if (user.rows.length === 0) {
-			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
+			return NextResponse.json({ message: 'User does not exist' }, { status: 206 });
 		}
 
 		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
@@ -40,7 +40,7 @@ export async function GET() {
 		});
 
 		if (user.rows[0].verified === false) {
-			return NextResponse.json({ error: 'User is not verified' }, { status: 401 });
+			return NextResponse.json({ message: 'User is not verified' }, { status: 206 });
 		}
 
 		return NextResponse.json(userIdValue, { status: 200 });

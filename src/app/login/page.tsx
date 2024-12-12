@@ -53,9 +53,13 @@ const Login: React.FC = () => {
 			'Content-Type': 'application/json'
 		},
 	})
-	.then((response) => {
+	.then(async (response) => {
 		if (response.status === 200) {
 			router.push('/user/me');
+		}
+		else {
+			const data = await response.json();
+			console.log(data);
 		}
 	})
 
