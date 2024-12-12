@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     height INT,
     tags VARCHAR(255),
     bio TEXT,
+    nb_photos INT DEFAULT 0,
     location VARCHAR(255),
     city VARCHAR(255),
     friends VARCHAR(255),

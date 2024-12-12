@@ -80,6 +80,11 @@ export async function POST(req: NextRequest) {
 
         await fs.writeFile(filePath, Buffer.from(fileBuffer));
 
+		await pool.query(
+			'UPDATE users SET nb_photos = nb_photos + 1 WHERE id = $1',
+			[userId]
+		);
+
         return NextResponse.json({
             message: 'File uploaded successfully!',
             path: filePath,

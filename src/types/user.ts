@@ -10,6 +10,7 @@ export interface UserResponse {
 	goal: string;
 	height: number;
 	bio: string;
+	nb_photos: number;
 	location: string;
 	friends: string;
 	locationAccess: boolean;

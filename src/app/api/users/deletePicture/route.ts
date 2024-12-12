@@ -82,6 +82,11 @@ export async function POST(req: NextRequest) {
 			};
 		})
 
+		await pool.query(
+			'UPDATE users SET nb_photos = nb_photos - 1 WHERE id = $1',
+			[userId]
+		);
+
         return NextResponse.json(filesReturn, { status: 200 });
     } catch (error: any) {
         if (error.code === 'ENOENT') {

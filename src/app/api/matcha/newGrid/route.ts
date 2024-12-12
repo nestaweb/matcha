@@ -194,6 +194,7 @@ export async function POST(req: NextRequest) {
 								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
 								WHERE user_tag = ANY($8::text[])
 							)
+							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
@@ -239,6 +240,7 @@ export async function POST(req: NextRequest) {
 								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
 								WHERE user_tag = ANY($7::text[])
 							)
+							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
@@ -279,6 +281,7 @@ export async function POST(req: NextRequest) {
 							${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
 							${genderCondition}
 							AND (u.fame BETWEEN $8 AND $9)
+							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
@@ -315,6 +318,7 @@ export async function POST(req: NextRequest) {
 							${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
 							${genderCondition}
 							AND (u.fame BETWEEN $9 AND $10)
+							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2

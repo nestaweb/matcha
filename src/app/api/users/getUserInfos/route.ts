@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
 			goal: user.rows[0].goal,
 			height: user.rows[0].height,
 			bio: user.rows[0].bio,
+			nb_photos: user.rows[0].nb_photos,
 			location: user.rows[0].location,
 			friends: friends,
 			locationAccess: user.rows[0].locationaccess,
