@@ -7,9 +7,13 @@ const PORT = process.env.PORT || 4000;
 const server = http.createServer();
 const io = new Server(server, {
 	cors: {
-		origin: "*",
-		methods: ["GET", "POST"]
+		origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+		methods: ["GET", "POST"],
+		credentials: true,
+		allowedHeaders: ["Content-Type"]
 	},
+	transports: ['websocket', 'polling'],
+	allowEIO3: true
 });
 
 io.on("connection", (socket) => {

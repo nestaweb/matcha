@@ -12,6 +12,8 @@ export const useSocket = (url: string) => {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      transports: ['websocket'],
+      upgrade: false
     });
 
     newSocket.on('connect', () => {

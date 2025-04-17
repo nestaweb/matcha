@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
 
 		const updateFame = await pool.query(
 			'UPDATE users SET fame = $1 WHERE id = $2',
-			[fameRating, userId]
+			[Math.round(fameRating), userId]
 		);
 
 		if (updateFame.rowCount === 0) {

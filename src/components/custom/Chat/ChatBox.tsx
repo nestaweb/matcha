@@ -29,7 +29,7 @@ interface IMessage {
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
-	const socket = useSocket("http://localhost:4001");
+	const socket = useSocket(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4001");
 	// const socket = useSocket("https://outgoing-ghoul-open.ngrok-free.app");
 	const [messages, setMessages] = useState<IMessage[]>([]);
  	const [newMessage, setNewMessage] = useState("");
