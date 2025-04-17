@@ -303,12 +303,15 @@ const EditUser: React.FC = () => {
 	};
 
 	const deletePicture = (path: string) => {
+		const fileNumber = path.split('/').pop()?.split('.')[0];
+		if (!fileNumber) return;
+		
 		fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/deletePicture`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ encryptedUserId: userId, imagePath: path })
+			body: JSON.stringify({ encryptedUserId: userId, imagePath: fileNumber })
 		})
 		.then(async (response) => {
 			if (response.status === 200) {

@@ -49,19 +49,15 @@ export async function POST(req: NextRequest) {
 		const uploadPath = path.join(process.cwd(), 'public', 'profileImages', String(userIdInt));
         const files = await fs.readdir(uploadPath);
 		
-		const fileNumberInt = imagePath.split('.')[0];
-
 		const fileToDelete = files.find((file) => {
 			const fileNumber = file.split('.')[0];
-			const fileWithoutPath = file.split('/')[file.split('/').length - 1];
-			const fileNumberInt = fileWithoutPath.split('.')[0];
-			return fileNumber === fileNumberInt;
+			return fileNumber === imagePath;
 		});
 
         if (!fileToDelete) {
 			console.log('File does not exist');
             return NextResponse.json(
-                { error: `File ${fileNumberInt} does not exist for user ${userIdInt}` },
+                { error: `File ${imagePath} does not exist for user ${userIdInt}` },
                 { status: 404 }
             );
         }
