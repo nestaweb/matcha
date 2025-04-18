@@ -146,7 +146,9 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) =>
 			<div className="w-[80vw] h-[80vh] grid grid-cols-12 grid-rows-8 mx-auto mt-[2vh] border-2 border-foreground/10">
 				{
 				mapStatus ?
-					<MapView />
+					<div className="col-span-12 row-span-8">
+						<MapView />
+					</div>
 				:
 				[...Array(96)].map((_, i) => {
 					const pair = pairs.find((p) => p.cell1 === i || p.cell2 === i);

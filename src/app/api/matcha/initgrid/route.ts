@@ -40,6 +40,11 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
+		if (!user.rows[0].location) {
+			console.log('User location not set');
+			return NextResponse.json({ error: 'User location not set' }, { status: 400 });
+		}
+
 		const unfinishedGrid = await pool.query(
 			'SELECT * FROM matcha_grid WHERE user_id = $1 AND finished = false',
 			[userId]
@@ -66,6 +71,7 @@ export async function POST(req: NextRequest) {
 		const searchRadius = 50;
 		
 		const locationParts = user.rows[0].location.split(',');
+		console.log('location here', user.rows[0].location);
 		if (locationParts.length !== 2) {
 			throw new Error('Invalid location format');
 		}
@@ -91,6 +97,8 @@ export async function POST(req: NextRequest) {
 				genderCondition = "AND u.gender = 'female' AND u.sexualOrientation != 'heterosexual'";
 			}
 		}
+
+		console.log("genderCondition", genderCondition);
 
 		const userTags = user.rows[0].tags.split(',');
 
@@ -153,6 +161,8 @@ export async function POST(req: NextRequest) {
 				break;
 			}
 
+			console.log("alreadySelectedIds: ", alreadySelectedIds ? alreadySelectedIds.length : 0)
+
 			const likedProfiles = await pool.query(
 				'SELECT * FROM profile_liked WHERE user_id = $1 AND deleted_at IS NULL',
 				[userId]
@@ -162,6 +172,8 @@ export async function POST(req: NextRequest) {
 			likedProfiles.rows.forEach((row: any) => {
 				likedProfilesMap.set(row.liked_user_id, row.user_id);
 			});
+
+			console.log("likedProfiles: ", likedProfiles.rowCount);
 
 
 			randomUsers.rows = randomUsers.rows.filter((user: any) => {
@@ -179,6 +191,8 @@ export async function POST(req: NextRequest) {
 				friendsProfilesMap.set(row.user_id, row.friend_id)
 			})
 
+			console.log("friendsProfiles: ", friendsProfiles.rowCount);
+
 			randomUsers.rows = randomUsers.rows.filter((user: any) => {
 				return !friendsProfilesMap.has(user.id);
 			})
@@ -194,6 +208,8 @@ export async function POST(req: NextRequest) {
 				blockedProfilesMap.set(row.blocked_user_id, row.user_id);
 				blockedProfilesMap.set(row.user_id, row.blocked_user_id);
 			});
+
+			console.log("blockedProfiles: ", blockedProfiles.rowCount);
 
 			randomUsers.rows = randomUsers.rows.filter((user: any) => {
 				return !blockedProfilesMap.has(user.id);

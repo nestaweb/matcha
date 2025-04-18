@@ -79,7 +79,7 @@ const MapView: React.FC = () => {
 
     const mapContainerStyle = {
         width: '100%',
-        height: '400px'
+        height: '700px'
     };
 
     const options = {

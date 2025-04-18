@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     title TEXT,
     date TIMESTAMP,
     read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -216,9 +217,9 @@ INSERT INTO users (firstName, lastName, email, password, gender, sexualOrientati
 ('Monica', 'Pena', 'monica.pena@example.com', '$2a$10$haI2UWxRB.F1j6PMOe99D.J3mhq.vNa2mPrbXBwECIAzn/g8oJgMy', 'female', 'heterosexual', 23, 'date', 168, 'code,art,travel', 'Creative developer and travel enthusiast', true, '41.5486,2.1075', true);
 
 INSERT INTO user_friends (user_id, friend_id) VALUES (2, 3);
-INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
-INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
-INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (3, 1);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (1, 4);
+-- INSERT INTO user_friends (user_id, friend_id) VALUES (1, 2);
 
 INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (11, 1);
 -- INSERT INTO profile_blocked (user_id, blocked_user_id) VALUES (12, 1);

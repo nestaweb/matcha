@@ -44,13 +44,20 @@ const Matcha: React.FC = () => {
 	}
 
 	useEffect(() => {
-		if (!userId) return;
-		const initGrid = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/initgrid`, {
+		if (!userId || gridId !== 0) return;
+		const initGrid = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/matcha/newGrid`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ encryptedUserId: userId })
+			body: JSON.stringify({ 
+				encryptedUserId: userId,
+				ageRange: 10,
+				fameRange: [0, 100],
+				locationRadius: [50],
+				tags: [],
+				sort: 'all'
+			})
 		})
 		.then(async (response) => {
 			if (response.status === 200) {
@@ -61,7 +68,7 @@ const Matcha: React.FC = () => {
 		.catch((error) => {
 			console.error('Error:', error);
 		});
-	});
+	}, [userId, gridId]);
 
 	useEffect(() => {
 		if (gridId === 0) return;
