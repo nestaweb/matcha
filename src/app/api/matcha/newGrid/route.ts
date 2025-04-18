@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
 	}
 	try {
 		const { encryptedUserId, ageRange, fameRange, locationRadius, tags, sort } = await req.json();
+		console.log('Received request with:', { ageRange, fameRange, locationRadius, tags, sort });
 
 		const lastSeenUpdate = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLastSeen`, {
 			method: 'POST',
@@ -20,12 +21,12 @@ export async function POST(req: NextRequest) {
 		});
 
 		if (ageRange === undefined || fameRange === undefined || locationRadius === undefined) {
-			console.log('Missing parameters');
+			console.log('Missing parameters:', { ageRange, fameRange, locationRadius });
 			return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
 		}
 
 		if (fameRange.length !== 2) {
-			console.log('Invalid fame range');
+			console.log('Invalid fame range:', fameRange);
 			return NextResponse.json({ error: 'Invalid fame range' }, { status: 400 });
 		}
 
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
 		const cryptedUserId = encryptedUserId.split('.');
 		const cryptedKeyUserId = { encryptedText: cryptedUserId[0], iv: cryptedUserId[1] };
 		const userId = parseInt(cryptoService.decrypt(cryptedKeyUserId));
+		console.log('Decrypted user ID:', userId);
 
 		if (!userId || userId === undefined) {
 			console.log('Missing User ID');
@@ -50,18 +52,22 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
 		}
 
-		const unfinishedGrid = await pool.query(
-			'SELECT * FROM matcha_grid WHERE user_id = $1 AND finished = false',
+		console.log('Found user:', { 
+			id: user.rows[0].id, 
+			age: user.rows[0].age, 
+			location: user.rows[0].location,
+			gender: user.rows[0].gender,
+			sexualorientation: user.rows[0].sexualorientation
+		});
+
+		// Delete all existing grids for this user
+		const deleteResult = await pool.query(
+			'DELETE FROM matcha_grid WHERE user_id = $1',
 			[userId]
 		);
+		console.log('Deleted existing grids:', deleteResult.rowCount);
 
-		if (unfinishedGrid.rows.length > 0) {
-			const updateGrid = await pool.query(
-				'UPDATE matcha_grid SET finished = true WHERE id = $1',
-				[unfinishedGrid.rows[0].id]
-			);
-		}
-
+		// Create new grid
 		const newGrid = await pool.query(
 			'INSERT INTO matcha_grid (user_id) VALUES ($1) RETURNING id',
 			[userId]
@@ -72,26 +78,31 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Error creating new grid' }, { status: 500 });
 		}
 
+		console.log('Created new grid with ID:', newGrid.rows[0].id);
+
 		const nbResult = await pool.query('SELECT COUNT(*) FROM users WHERE id != $1', [userId]);
 		const nbUsers = parseInt(nbResult.rows[0].count) > 0 && parseInt(nbResult.rows[0].count) < 10 ? parseInt(nbResult.rows[0].count) : 10;
+		console.log('Number of potential matches:', nbUsers);
 		
-		const locationParts = user.rows[0].location.split(',');
-		if (locationParts.length !== 2) {
-			throw new Error('Invalid location format');
+		let userLongitude = 0;
+		let userLatitude = 0;
+		if (user.rows[0].location) {
+			const locationParts = user.rows[0].location.split(',');
+			if (locationParts.length === 2) {
+				userLongitude = parseFloat(locationParts[0]);
+				userLatitude = parseFloat(locationParts[1]);
+			}
 		}
-		
-		const userLongitude = parseFloat(locationParts[0]);
-		const userLatitude = parseFloat(locationParts[1]);
+		console.log('User location:', { userLongitude, userLatitude });
 
 		const userAge = user.rows[0].age;
-		if (ageRange.length !== 2) {
-			ageRange.push(userAge - 10);
-			ageRange.push(userAge + 10);
-		}
+		const finalAgeRange = ageRange.length === 2 ? ageRange : [userAge - 10, userAge + 10];
+		console.log('Final age range:', finalAgeRange);
 
 		if (locationRadius.length !== 1) {
 			locationRadius.push(50);
 		}
+		console.log('Location radius:', locationRadius);
 
 		const { gender, sexualorientation } = user.rows[0];
 
@@ -109,6 +120,7 @@ export async function POST(req: NextRequest) {
 				genderCondition = "AND u.gender = 'female' AND u.sexualOrientation != 'heterosexual'";
 			}
 		}
+		console.log('Gender condition:', genderCondition);
 
 		let sortCondition = 'ORDER BY common_tag_count DESC, distance ASC, fame DESC';
 		if (sort === 'ageasc') {
@@ -132,11 +144,14 @@ export async function POST(req: NextRequest) {
 		else if (sort === 'tagcount') {
 			sortCondition = 'ORDER BY common_tag_count DESC';
 		}
+		console.log('Sort condition:', sortCondition);
 
 		const userTags = tags ? tags : user.rows[0].tags.split(',');
+		console.log('User tags:', userTags);
 
 		const fameMin = fameRange.length == 2 ? fameRange[0] : 0;
 		const fameMax = fameRange.length == 2 ? fameRange[1] : 100;
+		console.log('Fame range:', { fameMin, fameMax });
 
 		let randomUsersFetched = false;
 		let nbUsersNeeded = nbUsers;
@@ -144,6 +159,15 @@ export async function POST(req: NextRequest) {
 		let attempts = 0;
 		const maxAttempts = 10;
 		let emptyReturn = 0;
+		console.log('Starting user search with parameters:', {
+			nbUsersNeeded,
+			ageRange: finalAgeRange,
+			fameRange: [fameMin, fameMax],
+			tags: userTags,
+			sort: sortCondition
+		});
+
+
 		while (!randomUsersFetched && attempts < maxAttempts) {
 			attempts++;
 			let tempUsers: any[] = [];
@@ -166,41 +190,38 @@ export async function POST(req: NextRequest) {
 						SELECT id, firstname, fame, location, age, distance, common_tag_count
 						FROM (
 							SELECT u.id, u.firstname, u.fame, u.location, u.age,
-							ST_Distance(
-								ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
-											CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
-								ST_MakePoint($4, $3)::geography
-							) / 1000 AS distance,
+							CASE
+								WHEN u.location IS NOT NULL THEN
+								ST_Distance(
+									ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
+												CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
+									ST_MakePoint($4, $3)::geography
+								) / 1000
+								ELSE 0
+							END AS distance,
 							(
 								SELECT COUNT(*) 
 								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
-								WHERE user_tag = ANY($8::text[])
+								WHERE user_tag = ANY($7::text[])
 							) AS common_tag_count
 							FROM users u
 							WHERE u.id != $1
-							AND u.location IS NOT NULL
-							AND ST_DWithin(
-								ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
-											CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
-								ST_MakePoint($4, $3)::geography,
-								$5 * 1000
-							)
-							AND (u.age BETWEEN $6 AND $7)
+							AND (u.age BETWEEN $5 AND $6)
 							${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
 							${genderCondition}
-							AND (u.fame BETWEEN $9 AND $10)
+							AND (u.fame BETWEEN $8 AND $9)
 							AND EXISTS (
 								SELECT 1
 								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
-								WHERE user_tag = ANY($8::text[])
+								WHERE user_tag = ANY($7::text[])
 							)
-							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
 					`,
-					[userId, nbUsersNeeded, userLatitude, userLongitude, locationRadius[0], ageRange[0], ageRange[1], userTags, fameMin, fameMax]
+					[userId, nbUsersNeeded, userLatitude, userLongitude, finalAgeRange[0], finalAgeRange[1], userTags, fameMin, fameMax]
 				);
+				console.log('Query with tags and location radius returned:', randomUsers.rows.length, 'results');
 			} else if (tags && tags.length > 0 && locationRadius[0] === 0) {
 				console.log("no location radius but required tags", tags, locationRadius);
 				randomUsers = await pool.query(
@@ -222,7 +243,7 @@ export async function POST(req: NextRequest) {
 												CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
 									ST_MakePoint($4, $3)::geography
 								) / 1000
-								ELSE NULL
+								ELSE 0
 							END AS distance,
 							(
 								SELECT COUNT(*) 
@@ -240,13 +261,13 @@ export async function POST(req: NextRequest) {
 								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
 								WHERE user_tag = ANY($7::text[])
 							)
-							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
 					`,
-					[userId, nbUsersNeeded, userLatitude, userLongitude, ageRange[0], ageRange[1], userTags, fameMin, fameMax]
+					[userId, nbUsersNeeded, userLatitude, userLongitude, finalAgeRange[0], finalAgeRange[1], userTags, fameMin, fameMax]
 				);
+				console.log('Query with tags but no location radius returned:', randomUsers.rows.length, 'results');
 			} else if (locationRadius[0] === 0) {
 				console.log("no tags required and no location radius", tags, locationRadius);
 				randomUsers = await pool.query(
@@ -268,7 +289,7 @@ export async function POST(req: NextRequest) {
 												CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
 									ST_MakePoint($4, $3)::geography
 								) / 1000
-								ELSE NULL
+								ELSE 0
 							END AS distance,
 							(
 								SELECT COUNT(*) 
@@ -281,53 +302,62 @@ export async function POST(req: NextRequest) {
 							${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
 							${genderCondition}
 							AND (u.fame BETWEEN $8 AND $9)
-							AND u.nb_photos > 0
 						) AS matched_users
 						${sortCondition}
 						LIMIT $2
 					`,
-					[userId, nbUsersNeeded, userLatitude, userLongitude, ageRange[0], ageRange[1], userTags, fameMin, fameMax]
+					[userId, nbUsersNeeded, userLatitude, userLongitude, finalAgeRange[0], finalAgeRange[1], userTags, fameMin, fameMax]
 				);
+				console.log('Query with no tags and no location radius returned:', randomUsers.rows.length, 'results');
 			} else {
-				console.log("default");
-				randomUsers = await pool.query(
-					`
-						SELECT id, firstname, fame, location, age, distance, common_tag_count
-						FROM (
-							SELECT u.id, u.firstname, u.fame, u.location, u.age,
-							ST_Distance(
-								ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
-											CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
-								ST_MakePoint($4, $3)::geography
-							) / 1000 AS distance,
-							(
-								SELECT COUNT(*) 
-								FROM unnest(string_to_array(u.tags, ',')) AS user_tag
-								WHERE user_tag = ANY($8::text[])
-							) AS common_tag_count
+				console.log("default query");
+				try {
+					randomUsers = await pool.query(
+						`
+							SELECT id, firstname, fame, location, age, 
+								CASE
+									WHEN location IS NOT NULL THEN
+									ST_Distance(
+										ST_MakePoint(CAST(SPLIT_PART(location, ',', 1) AS DOUBLE PRECISION), 
+													CAST(SPLIT_PART(location, ',', 2) AS DOUBLE PRECISION))::geography,
+										ST_MakePoint($4, $3)::geography
+									) / 1000
+									ELSE 0
+								END AS distance,
+								(
+									SELECT COUNT(*) 
+									FROM unnest(string_to_array(tags, ',')) AS user_tag
+									WHERE user_tag = ANY($7::text[])
+								) AS common_tag_count
 							FROM users u
 							WHERE u.id != $1
-							AND u.location IS NOT NULL
-							AND ST_DWithin(
-								ST_MakePoint(CAST(SPLIT_PART(u.location, ',', 1) AS DOUBLE PRECISION), 
-											CAST(SPLIT_PART(u.location, ',', 2) AS DOUBLE PRECISION))::geography,
-								ST_MakePoint($4, $3)::geography,
-								$5 * 1000
-							)
-							AND (u.age BETWEEN $6 AND $7)
+							AND u.age BETWEEN $5 AND $6
 							${alreadySelectedIds ? `AND u.id NOT IN (${alreadySelectedIds.join(',')})` : ''}
 							${genderCondition}
-							AND (u.fame BETWEEN $9 AND $10)
-							AND u.nb_photos > 0
-						) AS matched_users
-						${sortCondition}
-						LIMIT $2
-					`,
-					[userId, nbUsersNeeded, userLatitude, userLongitude, locationRadius[0], ageRange[0], ageRange[1], userTags, fameMin, fameMax]
-				);
+							AND u.fame BETWEEN $8 AND $9
+							${sortCondition}
+							LIMIT $2
+						`,
+						[userId, nbUsersNeeded, userLatitude, userLongitude, finalAgeRange[0], finalAgeRange[1], userTags, fameMin, fameMax]
+					);
+					console.log('Default query returned:', randomUsers.rows.length, 'results');
+					if (randomUsers.rows.length > 0) {
+						console.log('First result sample:', randomUsers.rows[0]);
+					}
+				} catch (error) {
+					console.error('Error in default query:', error);
+					throw error;
+				}
 			}
 
 			if (randomUsers.rows.length === 0) {
+				console.log('No users found matching criteria. Debug info:', {
+					userId,
+					ageRange: finalAgeRange,
+					genderCondition,
+					fameRange: [fameMin, fameMax],
+					userTags
+				});
 				break;
 			}
 

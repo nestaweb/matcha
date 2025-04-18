@@ -83,7 +83,7 @@ const UserMe: React.FC = () => {
 
 	function saveLocation() {
 		if (latitude && longitude) {
-			const location = `${latitude},${longitude}`;
+			const location = `${longitude},${latitude}`;
 			fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/setUserLocation`, {
 				method: 'POST',
 				headers: {

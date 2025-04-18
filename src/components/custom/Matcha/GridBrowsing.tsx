@@ -1,11 +1,12 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import { X, Eye, RotateCcw, Beef } from "lucide-react";
+import { X, Eye, Map, Beef } from "lucide-react";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/ui/avatar";
+import MapView from "./Map";
 
 interface Pair  {
 	associated_user_id: string,
@@ -32,6 +33,7 @@ interface GridBrowsingProps {
 const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) => {
 	const [completedPairs, setCompletedPairs] = useState<Pair[]>([]);
 	const [clickedCells, setClickedCells] = useState<Set<number>>(new Set());
+	const [mapStatus, setMapStatus] = useState<boolean>(false);
 
 	useEffect(() => {
 		const fetchCompletedPairs = async () => {
@@ -132,7 +134,7 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) =>
 		<>
 			<div className="w-[80vw] mx-auto flex items-center justify-center mt-[2.5vh] gap-4">
 				<div className="transition duration-300 cursor-pointer ease-in-out hover:bg-foreground/5 flex items-center justify-center p-2 rounded-2xl">
-					<RotateCcw />
+					<Map onClick={() => setMapStatus(!mapStatus)}/>
 				</div>
 				<div className="bg-foreground/90 rounded-3xl px-6 py-2 text-primary">
 					<p className="">{completedPairs.length} <span className="text-primary/80">/ {pairs.length} discovered</span></p>
@@ -142,7 +144,11 @@ const GridBrowsing: React.FC<GridBrowsingProps> = ({ pairs, userId, gridId }) =>
 				</div>
 			</div>
 			<div className="w-[80vw] h-[80vh] grid grid-cols-12 grid-rows-8 mx-auto mt-[2vh] border-2 border-foreground/10">
-				{[...Array(96)].map((_, i) => {
+				{
+				mapStatus ?
+					<MapView />
+				:
+				[...Array(96)].map((_, i) => {
 					const pair = pairs.find((p) => p.cell1 === i || p.cell2 === i);
 					const isClicked = clickedCells.has(i);
 					const isCompleted = pair && completedPairs.some((cp) => cp.id === pair.id);

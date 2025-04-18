@@ -23,6 +23,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@react-google-maps/api": "^2.20.6",
     "@types/formidable": "^3.4.5",
     "@types/nodemailer": "^6.4.17",
     "bcrypt": "^5.1.1",
