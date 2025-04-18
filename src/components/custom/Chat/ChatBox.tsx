@@ -226,7 +226,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId, receiverId }) => {
 
 	return (
 		<>
-		<ScrollArea className="flex flex-col-reverse p-8 h-9/12 overflow-y-auto">
+		<ScrollArea className="flex flex-col-reverse p-8 h-9/12 overflow-y-auto h-full">
 			<div className="w-full flex flex-col gap-4">
 				{messages.map((msg, idx) => {
 					if (!userId || !msg.senderId || !msg.receiverId) return;
