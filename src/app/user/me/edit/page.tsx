@@ -100,6 +100,8 @@ const EditUser: React.FC = () => {
 	const [photos, setPhotos] = useState<any[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [googlePhotosOpen, setGooglePhotosOpen] = useState(false);
+	const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
 	if (!userId) {
 		const isLoggedIn = fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/isLoggedIn`, {
@@ -368,22 +370,67 @@ const EditUser: React.FC = () => {
 
 	useEffect(() => {
 		const fetchPhotos = async () => {
-		  try {
-			const userPhotos = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUsersPhotos`, {
-			  method: 'POST',
-			  headers: {
-				'Content-Type': 'application/json',
-			  },
-			  body: JSON.stringify({ userId }),
-			}).then((res) => res.json());
-			setPhotos(userPhotos);
-		  } catch (err: any) {
-			setError(err.message);
-		  }
+			if (!googlePhotosOpen) return;
+			
+			setLoading(true);
+			setError(null);
+			try {
+				const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUsersPhotos`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ userId, pageToken: null }),
+				});
+				
+				const data = await response.json();
+
+				
+				if (!response.ok) {
+					throw new Error(data.error || 'Failed to fetch photos');
+				}
+				
+				setPhotos(data || []);
+				setNextPageToken(data.nextPageToken);
+			} catch (err: any) {
+				setError(err.message);
+			} finally {
+				setLoading(false);
+			}
 		};
-	
+
 		fetchPhotos();
-	}, []);
+	}, [googlePhotosOpen, userId]);
+
+	const loadMorePhotos = async () => {
+		console.log("check for nextPageToken and loading state", nextPageToken, loading);
+		if (!nextPageToken || loading) return;
+		
+		setLoading(true);
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getUsersPhotos`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ userId, pageToken: nextPageToken }),
+			});
+			
+			const data = await response.json();
+			
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to fetch more photos');
+			}
+
+			
+			setPhotos(prev => [...prev, ...(data.mediaItems || [])]);
+			setNextPageToken(data.nextPageToken);
+		} catch (err: any) {
+			setError(err.message);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	async function downloadGooglePhoto(photoUrl: string, encryptedUserId: string) {
 		try {
@@ -710,38 +757,82 @@ const EditUser: React.FC = () => {
 					[...Array(5 - files.length)].map((_, index) => (
 						index === 0 ?
 						<div key={index} className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
-							<label>
-								<input className='overflow-hidden w-0' type="file" accept="image/*" onChange={handleFileChange} />
+							<label className='flex flex-col items-center gap-2 cursor-pointer'>
+								<input className='hidden' type="file" accept="image/*" onChange={handleFileChange} />
 								<Plus size={30} />
+								<span className='text-sm'>Upload from device</span>
 							</label>
 							
-							<button onClick={handleUpload} disabled={!file}>
-								Télécharger l'image
+							<button 
+								onClick={handleUpload} 
+								disabled={!file}
+								className='mt-2 px-4 py-2 bg-primary text-foreground rounded-lg disabled:opacity-50'
+							>
+								Upload
 							</button>
-							{
-								user.provider === 'google' &&
-								<Dialog open={googlePhotosOpen} onOpenChange={setGooglePhotosOpen}>
-									<DialogTrigger>
-										<button>
-											Importer de google
-										</button>
-									</DialogTrigger>
-									<DialogContent>
-										<DialogTitle>Your google photos</DialogTitle>
-									{photos.length > 0 ? (
-										<div className='flex flex-wrap max-h-[70vh] max-w-[70vw] overflow-x-scroll'>
-										{photos.map((photo, index) => (
-											<div key={index} onClick={() => downloadGooglePhoto(photo.baseUrl, userId)}>
-												<img src={photo.baseUrl} alt={`Photo ${index + 1}`} />
-											</div>
-										))}
+
+							<Dialog open={googlePhotosOpen} onOpenChange={setGooglePhotosOpen}>
+								<DialogTrigger asChild>
+									<button className='mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'>
+										Import from Google Photos
+									</button>
+								</DialogTrigger>
+								<DialogContent className='max-w-4xl'>
+									<DialogHeader>
+										<DialogTitle>Select photos from Google Photos</DialogTitle>
+										<DialogDescription>
+											Choose photos to add to your profile. You can select multiple photos.
+										</DialogDescription>
+									</DialogHeader>
+									{error && (
+										<div className='p-4 bg-red-100 text-red-700 rounded-lg'>
+											{error}
 										</div>
-									) : (
-										<p>No photos available.</p>
 									)}
-									</DialogContent>
-								</Dialog>
-							}
+									{loading && photos.length === 0 ? (
+										<div className='flex items-center justify-center p-8'>
+											<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
+										</div>
+									) : photos.length > 0 ? (
+										<>
+											<div className='grid grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-4'>
+												{photos.map((photo, index) => (
+													<div 
+														key={index} 
+														onClick={() => downloadGooglePhoto(photo.baseUrl, userId)}
+														className='relative aspect-square cursor-pointer group hover:opacity-90 transition-opacity'
+													>
+														<img 
+															src={photo.baseUrl} 
+															alt={`Photo ${index + 1}`}
+															className='w-full h-full object-cover rounded-lg'
+														/>
+														<div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center'>
+															<Plus size={24} className='text-white' />
+														</div>
+													</div>
+												))}
+											</div>
+											{nextPageToken && (
+												<div className='flex justify-center mt-4'>
+													<button
+														onClick={loadMorePhotos}
+														disabled={loading}
+														className='px-4 py-2 bg-primary text-foreground rounded-lg disabled:opacity-50'
+													>
+														{loading ? 'Loading...' : 'Load More'}
+													</button>
+												</div>
+											)}
+										</>
+									) : (
+										<div className='flex flex-col items-center justify-center p-8 text-center'>
+											<p className='text-lg text-foreground/70'>No photos available in your Google Photos library.</p>
+											<p className='text-sm text-foreground/50 mt-2'>Make sure you have photos in your Google Photos account.</p>
+										</div>
+									)}
+								</DialogContent>
+							</Dialog>
 						</div>
 						:
 						<div className='flex flex-col items-center justify-center bg-foreground/70 h-2/6 rounded-2xl relative flex-1 border-4 border-foreground border-dashed text-primary/70'>
